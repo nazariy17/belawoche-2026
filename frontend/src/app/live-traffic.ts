@@ -2,6 +2,7 @@ import type { Point } from './geo';
 import { interpolate, type Aircraft, type Observation } from './traffic';
 
 export class LiveTraffic {
+  lastReceivedAt = 0;
   private controller?: AbortController;
   private timer?: ReturnType<typeof setTimeout>;
   private generation = 0;
@@ -21,6 +22,7 @@ export class LiveTraffic {
   start(center: Point, radius: number) {
     this.cancel(); this.active = true; this.center = center; this.radius = radius;
     this.latest = []; this.history.clear();
+    this.lastReceivedAt = 0;
     if (!document.hidden) void this.poll();
   }
   stop() { this.active = false; this.cancel(); }
@@ -28,7 +30,10 @@ export class LiveTraffic {
   private async poll() {
     if (!this.active || document.hidden) return;
     const remaining = this.retryAt - Date.now();
-    if (remaining > 0) { this.timer = setTimeout(() => void this.poll(), remaining); return; }
+    if (remaining > 0) {
+      this.status(`Anfragelimit erreicht. Nächster Versuch in ${Math.ceil(remaining / 1000)} s. Simulation ist verfügbar.`, true);
+      this.timer = setTimeout(() => void this.poll(), remaining); return;
+    }
     const generation = this.generation;
     this.controller = new AbortController();
     let delay = 30_000;
@@ -48,6 +53,7 @@ export class LiveTraffic {
       if (!Array.isArray(data.aircraft)) throw Error('Ungültige Antwort des Live-Feeds.');
       if (generation !== this.generation) return;
       this.latest = data.aircraft;
+      this.lastReceivedAt = Date.now();
       const ids = new Set(this.latest.map(a => a.id));
       for (const id of this.history.keys()) if (!ids.has(id)) this.history.delete(id);
       for (const plane of this.latest) {
@@ -57,7 +63,7 @@ export class LiveTraffic {
       }
       this.status(this.latest.length ? 'Live · adsb.lol · Aktualisierung alle 30 s' : 'Live · keine Flugzeuge im gewählten Umkreis', false);
     } catch (error) {
-      if (generation === this.generation) this.status(error instanceof Error ? error.message : 'Live-Feed fehlgeschlagen', true);
+      if (generation === this.generation) this.status(error instanceof Error && error.name !== 'TypeError' && error.name !== 'TimeoutError' ? error.message : 'Live-Verbindung fehlgeschlagen. Bitte Backend und Internetverbindung prüfen. Simulation ist verfügbar.', true);
     } finally {
       if (generation === this.generation && this.active && !document.hidden) this.timer = setTimeout(() => void this.poll(), delay);
     }

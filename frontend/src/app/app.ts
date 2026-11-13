@@ -33,8 +33,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly searchStatus = signal('');
   readonly accent = signal('#5ae2c4');
   readonly preferenceStatus = signal('');
-  readonly mode = signal<'simulation' | 'live'>('simulation');
-  readonly liveStatus = signal('');
+  readonly mode = signal<'simulation' | 'live'>('live');
+  readonly liveStatus = signal('Live-Verbindung wird gestartet …');
   readonly liveError = signal(false);
   readonly lookupStatus = signal('');
   readonly lookupResults = signal<Aircraft[]>([]);
@@ -70,7 +70,7 @@ export class App implements AfterViewInit, OnDestroy {
         this.dataError.set('Ein Teil der Kartendaten konnte nicht geladen werden. Bitte Internetverbindung prüfen und die Seite neu laden.');
       });
       this.map.addControl(new NavigationControl(), 'top-right');
-      this.map.on('load', () => {
+      this.map.once('style.load', () => {
         void addAirportLights(this.map!).then(() => { if (!this.destroyed) setLights(this.map!, this.lights()); }).catch(() => this.dataError.set('Flughafenbeleuchtung konnte nicht geladen werden.'));
         this.map!.addSource('ring', { type: 'geojson', data: this.ring() });
         this.map!.addLayer({ id: 'ring-fill', type: 'fill', source: 'ring', paint: { 'fill-color': this.accent(), 'fill-opacity': 0.06 } });
@@ -78,6 +78,8 @@ export class App implements AfterViewInit, OnDestroy {
         this.pin = new Marker({ color: '#5ae2c4' }).setLngLat(this.center).addTo(this.map!);
         this.renderer = new TrafficRenderer(this.map!, id => this.selectAircraft(id));
         this.map!.on('click', event => { if (this.placing()) this.moveRadar([event.lngLat.lng, event.lngLat.lat]); });
+        this.frame = requestAnimationFrame(time => this.animate(time));
+        if (this.mode() === 'live') this.live.start(this.center, this.radius());
         void this.loadReplay();
       });
     } catch (error) {
@@ -91,7 +93,6 @@ export class App implements AfterViewInit, OnDestroy {
       if (!response.ok) throw new Error();
       this.replay = await response.json();
       this.playbackTime = this.replay!.start;
-      if (!this.destroyed) this.frame = requestAnimationFrame(time => this.animate(time));
     } catch { this.dataError.set('Simulation konnte nicht geladen werden. Bitte Seite neu laden.'); }
   }
   private animate(time: number) {
@@ -124,9 +125,13 @@ export class App implements AfterViewInit, OnDestroy {
   moveRadar(point: Point) { this.center = [((point[0] + 540) % 360) - 180, Math.max(-85, Math.min(85, point[1]))]; this.pin?.setLngLat(this.center); this.placing.set(false); this.updateRing(); if (this.mode() === 'live') this.live.start(this.center, this.radius()); }
   setRadius(radius: number) { this.radius.set(radius); this.updateRing(); this.savePreferences(); if (this.mode() === 'live') this.live.start(this.center, radius); }
   setMode(mode: 'simulation' | 'live') {
+    if (mode === this.mode()) return;
     this.mode.set(mode); this.closeAircraft(); this.current = []; this.renderTraffic();
     if (mode === 'live') this.live.start(this.center, this.radius());
     else { this.live.stop(); this.chooseAirport(zurich); this.restart(); }
+  }
+  liveUpdateAge() {
+    return this.live.lastReceivedAt ? Math.max(0, Math.floor((this.clock() - this.live.lastReceivedAt) / 1000)) : null;
   }
   async lookupAircraft() {
     this.lookupController?.abort();
