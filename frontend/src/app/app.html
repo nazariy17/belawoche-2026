@@ -38,8 +38,10 @@
         <button (click)="airportZoom(13)">Anflug {{ airport().iata || airport().icao }}</button>
         <button (click)="airportZoom(16)">Flughafen {{ airport().iata || airport().icao }}</button>
         <button (click)="toggleLights()" [attr.aria-pressed]="lights()">Lichter {{ lights() ? 'an' : 'aus' }}</button>
+        <button (click)="toggleApproaches()" [attr.aria-pressed]="approaches()">Anfluglinien {{ approaches() ? 'an' : 'aus' }}</button>
       </div>
       <div id="radar-map" aria-label="Interaktive schematische Radarkarte"></div>
+      <p class="caption" role="status">{{ runwayStatus() }}</p>
       <details class="icon-legend">
         <summary>Flugzeugtypen · Symbollegende</summary>
         <div>

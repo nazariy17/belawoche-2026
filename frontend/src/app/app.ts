@@ -11,6 +11,7 @@ import { airportMatches, zurich, type Airport } from './airports';
 import { LiveTraffic } from './live-traffic';
 import { WeatherCard } from './weather-card';
 import { iconLabels, iconUrl, type AircraftIcon } from './aircraft-icons';
+import { loadRunways, runwayFeatures } from './runways';
 
 @Component({ selector: 'app-root', imports: [AircraftCard, WeatherCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
@@ -19,6 +20,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly legendIcons: AircraftIcon[] = ['small', 'medium', 'large', 'heavy-twin', 'heavy-four', 'heavy', 'helicopter', 'unknown'];
   readonly radius = signal(25);
   readonly lights = signal(true);
+  readonly approaches = signal(true);
+  readonly runwayStatus = signal('');
   readonly placing = signal(false);
   readonly mapError = signal('');
   readonly dataError = signal('');
@@ -83,6 +86,7 @@ export class App implements AfterViewInit, OnDestroy {
         this.map!.addLayer({ id: 'ring-line', type: 'line', source: 'ring', paint: { 'line-color': this.accent(), 'line-width': 1.5 } });
         this.pin = new Marker({ color: '#5ae2c4' }).setLngLat(this.center).addTo(this.map!);
         this.renderer = new TrafficRenderer(this.map!, id => this.selectAircraft(id));
+        void this.updateRunways();
         this.map!.on('click', event => { if (this.placing()) this.moveRadar([event.lngLat.lng, event.lngLat.lat]); });
         this.map!.on('dragstart', () => this.following.set(false));
         this.frame = requestAnimationFrame(time => this.animate(time));
@@ -187,7 +191,31 @@ export class App implements AfterViewInit, OnDestroy {
   chooseAirport(airport: Airport) {
     this.airport.set(airport); this.moveRadar([airport.lon, airport.lat]); this.reset();
     this.airportResults.set([]); this.airportQuery.set(''); this.searchStatus.set('');
+    void this.updateRunways();
   }
+  async updateRunways() {
+    const airport = this.airport();
+    this.map?.getSource<GeoJSONSource>('selected-runways')?.setData({ type: 'FeatureCollection', features: [] });
+    this.runwayStatus.set('Pistendaten werden geladen …');
+    try {
+      const runways = await loadRunways(airport.icao);
+      if (this.destroyed || airport.icao !== this.airport().icao) return;
+      const map = this.map;
+      if (!map) return;
+      const data = runwayFeatures(runways);
+      if (map.getSource('selected-runways')) map.getSource<GeoJSONSource>('selected-runways')!.setData(data);
+      else {
+        map.addSource('selected-runways', { type: 'geojson', data });
+        map.addLayer({ id: 'approach-lines', type: 'line', source: 'selected-runways', minzoom: 8, filter: ['==', ['get', 'kind'], 'approach'], paint: { 'line-color': '#72d2e8', 'line-width': 1.5, 'line-dasharray': [6, 4], 'line-opacity': 0.75 } });
+        map.addLayer({ id: 'approach-distances', type: 'symbol', source: 'selected-runways', minzoom: 10, filter: ['==', ['get', 'kind'], 'distance'], layout: { 'text-field': ['get', 'ident'], 'text-font': ['Noto Sans Regular'], 'text-size': 10, 'text-offset': [0, 1] }, paint: { 'text-color': '#9bdded', 'text-halo-color': '#091b26', 'text-halo-width': 2 } });
+        map.addLayer({ id: 'runway-numbers', type: 'symbol', source: 'selected-runways', minzoom: 12, filter: ['==', ['get', 'kind'], 'number'], layout: { 'text-field': ['get', 'ident'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 12, 12, 17, 24], 'text-rotate': ['get', 'heading'], 'text-rotation-alignment': 'map', 'text-allow-overlap': true }, paint: { 'text-color': '#fff6d8', 'text-halo-color': '#18232c', 'text-halo-width': 2 } });
+      }
+      this.setApproaches();
+      this.runwayStatus.set(runways.length ? 'Gestrichelt: verlängerte Pistenachsen · 2-NM-Abstände · keine veröffentlichten Anflugverfahren.' : 'Keine vollständigen Pistendaten für diesen Flughafen vorhanden.');
+    } catch { if (airport.icao === this.airport().icao) this.runwayStatus.set('Pistendaten konnten nicht geladen werden.'); }
+  }
+  toggleApproaches() { this.approaches.update(value => !value); this.setApproaches(); }
+  private setApproaches() { for (const id of ['approach-lines', 'approach-distances']) if (this.map?.getLayer(id)) this.map.setLayoutProperty(id, 'visibility', this.approaches() ? 'visible' : 'none'); }
   setAccent(color: string) {
     if (!/^#[\da-f]{6}$/i.test(color)) return;
     this.accent.set(color);
