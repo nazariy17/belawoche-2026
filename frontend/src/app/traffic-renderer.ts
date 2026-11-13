@@ -55,7 +55,8 @@ export class TrafficRenderer {
       item.element.setAttribute('aria-label', `${plane.airline ?? 'Unbekannte Airline'}, ${iconLabels[kind]}, ${item.text.textContent}. Details öffnen`);
       const p = this.map.project([plane.lon, plane.lat]);
       const offsets = [[24, -18], [24, 28], [-210, -18], [-210, 28], [24, -65], [-210, -65]];
-      const offset = offsets.find(([x, y]) => !occupied.some(q => Math.abs(q.x - (p.x + x)) < 195 && Math.abs(q.y - (p.y + y)) < 42));
+      const canvas = this.map.getCanvas();
+      const offset = offsets.find(([x, y]) => p.x + x >= 8 && p.x + x + 190 <= canvas.clientWidth - 8 && p.y + y >= 8 && p.y + y + 42 <= canvas.clientHeight - 32 && !occupied.some(q => Math.abs(q.x - (p.x + x)) < 195 && Math.abs(q.y - (p.y + y)) < 42));
       item.label.hidden = !offset;
       if (offset) {
         item.label.style.left = `${offset[0]}px`; item.label.style.top = `${offset[1]}px`;
