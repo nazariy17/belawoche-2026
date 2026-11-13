@@ -47,6 +47,16 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               {
+                "glob": "maplibre-gl-worker.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
+              },
+              {
+                "glob": "maplibre-gl-shared.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "maplibre"
+              },
+              {
                 "glob": "**/*",
                 "input": "public"
               }

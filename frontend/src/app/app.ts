@@ -16,7 +16,7 @@ export class App implements AfterViewInit, OnDestroy {
   readonly radius = signal(25);
   readonly lights = signal(true);
   readonly placing = signal(false);
-  readonly mapError = signal(false);
+  readonly mapError = signal('');
   readonly dataError = signal('');
   readonly apiStatus = signal('Nicht geprüft');
   readonly checking = signal(false);
@@ -59,9 +59,16 @@ export class App implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     try {
       this.restorePreferences();
-      const [{ Map, NavigationControl, Marker }, { TrafficRenderer }] = await Promise.all([import('maplibre-gl'), import('./traffic-renderer')]);
+      const [{ Map, NavigationControl, Marker, setWorkerUrl }, { TrafficRenderer }] = await Promise.all([import('maplibre-gl'), import('./traffic-renderer')]);
       if (this.destroyed) return;
+      // MapLibre 6's ESM worker and its shared module must be served separately
+      // from Angular's bundled chunks, both in ng serve and the Vercel build.
+      setWorkerUrl(new URL('maplibre/maplibre-gl-worker.mjs', document.baseURI).href);
       this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9, style: radarStyle() });
+      this.map.on('error', event => {
+        console.error('Radar map error:', event.error);
+        this.dataError.set('Ein Teil der Kartendaten konnte nicht geladen werden. Bitte Internetverbindung prüfen und die Seite neu laden.');
+      });
       this.map.addControl(new NavigationControl(), 'top-right');
       this.map.on('load', () => {
         void addAirportLights(this.map!).then(() => { if (!this.destroyed) setLights(this.map!, this.lights()); }).catch(() => this.dataError.set('Flughafenbeleuchtung konnte nicht geladen werden.'));
@@ -73,7 +80,10 @@ export class App implements AfterViewInit, OnDestroy {
         this.map!.on('click', event => { if (this.placing()) this.moveRadar([event.lngLat.lng, event.lngLat.lat]); });
         void this.loadReplay();
       });
-    } catch { this.mapError.set(true); }
+    } catch (error) {
+      console.error('Radar initialization failed:', error);
+      this.mapError.set('Die Karte konnte nicht gestartet werden. Bitte Seite neu laden. Falls der Fehler bleibt, prüfe die Browserkonsole; WebGL muss verfügbar sein.');
+    }
   }
   private async loadReplay() {
     try {

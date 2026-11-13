@@ -40,7 +40,7 @@
         <button (click)="toggleLights()" [attr.aria-pressed]="lights()">Lichter {{ lights() ? 'an' : 'aus' }}</button>
       </div>
       <div id="radar-map" aria-label="Interaktive schematische Radarkarte"></div>
-      @if (mapError()) { <p role="alert">Die Karte benötigt einen Browser mit WebGL-Unterstützung.</p> }
+      @if (mapError()) { <p role="alert" class="caption">{{ mapError() }}</p> }
       @if (dataError()) { <p role="alert" class="caption">{{ dataError() }}</p> }
       @if (mode() === 'live') { <p class="caption" [attr.role]="liveError() ? 'alert' : 'status'">{{ liveStatus() }}</p> }
       @if (empty() && mode() === 'simulation') { <p role="status" class="caption">Keine Flugzeuge im gewählten Umkreis. Vergrößere den Radius oder versetze den Radar-Punkt.</p> }
