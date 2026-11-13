@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
@@ -25,6 +26,7 @@
     "@angular/cli": "^22.2.7",
     "@angular/compiler-cli": "^22.2.0",
     "prettier": "^3.8.1",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.2"
   }
 }

@@ -1,0 +1,516 @@
+{
+  "mode": "simulation",
+  "credit": "Original synthetic teaching scenario for Ewan; no observed flights or real registrations.",
+  "start": 1794571200000,
+  "end": 1794571320000,
+  "aircraft": [
+    {
+      "id": "demo-swiss",
+      "callsign": "SWR-DEMO",
+      "registration": "HB-DEMO",
+      "airline": "SWISS",
+      "operator": "SWR",
+      "aircraftType": "A320",
+      "samples": [
+        {
+          "observedAt": 1794571200000,
+          "lon": 8.48,
+          "lat": 47.56,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 4500
+        },
+        {
+          "observedAt": 1794571210000,
+          "lon": 8.484793765864229,
+          "lat": 47.55439695705341,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 4380
+        },
+        {
+          "observedAt": 1794571220000,
+          "lon": 8.489587019135119,
+          "lat": 47.548793914106824,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 4260
+        },
+        {
+          "observedAt": 1794571230000,
+          "lon": 8.494379759968108,
+          "lat": 47.543190871160235,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 4140
+        },
+        {
+          "observedAt": 1794571240000,
+          "lon": 8.499171988518578,
+          "lat": 47.537587828213645,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 4020
+        },
+        {
+          "observedAt": 1794571250000,
+          "lon": 8.503963704941848,
+          "lat": 47.531984785267056,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3900
+        },
+        {
+          "observedAt": 1794571260000,
+          "lon": 8.50875490939318,
+          "lat": 47.52638174232047,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3780
+        },
+        {
+          "observedAt": 1794571270000,
+          "lon": 8.513545602027772,
+          "lat": 47.52077869937388,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3660
+        },
+        {
+          "observedAt": 1794571280000,
+          "lon": 8.518335783000769,
+          "lat": 47.51517565642729,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3540
+        },
+        {
+          "observedAt": 1794571290000,
+          "lon": 8.523125452467252,
+          "lat": 47.5095726134807,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3420
+        },
+        {
+          "observedAt": 1794571300000,
+          "lon": 8.527914610582243,
+          "lat": 47.50396957053411,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3300
+        },
+        {
+          "observedAt": 1794571310000,
+          "lon": 8.532703257500708,
+          "lat": 47.49836652758752,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3180
+        },
+        {
+          "observedAt": 1794571320000,
+          "lon": 8.537491393377548,
+          "lat": 47.49276348464093,
+          "track": 150,
+          "heading": 146,
+          "speedKt": 140,
+          "altitudeFt": 3060
+        }
+      ]
+    },
+    {
+      "id": "demo-lufthansa",
+      "callsign": "DLH-DEMO",
+      "registration": "D-DEMO",
+      "airline": "Lufthansa",
+      "operator": "DLH",
+      "aircraftType": "A321",
+      "samples": [
+        {
+          "observedAt": 1794571200000,
+          "lon": 8.68,
+          "lat": 47.4,
+          "track": 350,
+          "heading": 346,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571210000,
+          "lon": 8.677747421063664,
+          "lat": 47.4086470972604,
+          "track": 353.3333333333333,
+          "heading": 349.33333333333326,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571220000,
+          "lon": 8.676241206679336,
+          "lat": 47.41736821938386,
+          "track": 356.6666666666667,
+          "heading": 352.66666666666674,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571230000,
+          "lon": 8.675486698249628,
+          "lat": 47.42613385685373,
+          "track": 0,
+          "heading": 356,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571240000,
+          "lon": 8.675486698249628,
+          "lat": 47.4349143495275,
+          "track": 3.3333333333333144,
+          "heading": 359.3333333333333,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571250000,
+          "lon": 8.676241458226201,
+          "lat": 47.443679986997374,
+          "track": 6.666666666666686,
+          "heading": 2.6666666666666856,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571260000,
+          "lon": 8.6777486753976,
+          "lat": 47.452401109120835,
+          "track": 10,
+          "heading": 6,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571270000,
+          "lon": 8.680003497899317,
+          "lat": 47.461048206381236,
+          "track": 13.333333333333314,
+          "heading": 9.333333333333314,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571280000,
+          "lon": 8.68299853869292,
+          "lat": 47.46959201973861,
+          "track": 16.666666666666686,
+          "heading": 12.666666666666686,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571290000,
+          "lon": 8.686723898124859,
+          "lat": 47.47800363963305,
+          "track": 20,
+          "heading": 16,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571300000,
+          "lon": 8.691167195092124,
+          "lat": 47.48625460380546,
+          "track": 23.333333333333314,
+          "heading": 19.333333333333314,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571310000,
+          "lon": 8.696313606741096,
+          "lat": 47.49431699360487,
+          "track": 26.666666666666686,
+          "heading": 22.666666666666686,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        },
+        {
+          "observedAt": 1794571320000,
+          "lon": 8.702145916595361,
+          "lat": 47.50216352845627,
+          "track": 30,
+          "heading": 26,
+          "speedKt": 190,
+          "altitudeFt": 8500
+        }
+      ]
+    },
+    {
+      "id": "demo-easyjet",
+      "callsign": "EZY-DEMO",
+      "registration": "G-DEMO",
+      "airline": "easyJet",
+      "operator": "EZY",
+      "aircraftType": "A319",
+      "samples": [
+        {
+          "observedAt": 1794571200000,
+          "lon": 8.4,
+          "lat": 47.4,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571210000,
+          "lon": 8.409900380404828,
+          "lat": 47.40312488130612,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571220000,
+          "lon": 8.419801348062904,
+          "lat": 47.40624976261224,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571230000,
+          "lon": 8.429702903073355,
+          "lat": 47.40937464391836,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571240000,
+          "lon": 8.439605045535329,
+          "lat": 47.41249952522448,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571250000,
+          "lon": 8.449507775547993,
+          "lat": 47.415624406530604,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571260000,
+          "lon": 8.459411093210536,
+          "lat": 47.418749287836725,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571270000,
+          "lon": 8.469314998622169,
+          "lat": 47.421874169142846,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571280000,
+          "lon": 8.479219491882123,
+          "lat": 47.42499905044897,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571290000,
+          "lon": 8.489124573089653,
+          "lat": 47.42812393175509,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571300000,
+          "lon": 8.49903024234403,
+          "lat": 47.43124881306121,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571310000,
+          "lon": 8.508936499744552,
+          "lat": 47.43437369436733,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        },
+        {
+          "observedAt": 1794571320000,
+          "lon": 8.518843345390534,
+          "lat": 47.43749857567345,
+          "track": 65,
+          "heading": 61,
+          "speedKt": 160,
+          "altitudeFt": 6200
+        }
+      ]
+    },
+    {
+      "id": "demo-unknown",
+      "callsign": "DEMO-04",
+      "registration": null,
+      "airline": null,
+      "operator": null,
+      "aircraftType": null,
+      "samples": [
+        {
+          "observedAt": 1794571200000,
+          "lon": 8.74,
+          "lat": 47.56,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571210000,
+          "lon": 8.732883103397343,
+          "lat": 47.55722721283986,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571220000,
+          "lon": 8.725766583422724,
+          "lat": 47.55445442567972,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571230000,
+          "lon": 8.718650440019614,
+          "lat": 47.55168163851958,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571240000,
+          "lon": 8.711534673131501,
+          "lat": 47.54890885135944,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571250000,
+          "lon": 8.704419282701881,
+          "lat": 47.5461360641993,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571260000,
+          "lon": 8.697304268674259,
+          "lat": 47.54336327703916,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571270000,
+          "lon": 8.690189630992153,
+          "lat": 47.54059048987902,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571280000,
+          "lon": 8.683075369599091,
+          "lat": 47.53781770271888,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571290000,
+          "lon": 8.675961484438613,
+          "lat": 47.53504491555874,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571300000,
+          "lon": 8.668847975454268,
+          "lat": 47.5322721283986,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571310000,
+          "lon": 8.661734842589615,
+          "lat": 47.52949934123846,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        },
+        {
+          "observedAt": 1794571320000,
+          "lon": 8.654622085788226,
+          "lat": 47.52672655407832,
+          "track": 240,
+          "heading": null,
+          "speedKt": 120,
+          "altitudeFt": 11000
+        }
+      ]
+    }
+  ]
+}

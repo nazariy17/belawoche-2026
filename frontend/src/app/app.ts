@@ -3,6 +3,9 @@ import type { GeoJSONSource, Map, Marker } from 'maplibre-gl';
 import type { Feature, Polygon } from 'geojson';
 import { radarStyle } from './map-style';
 import { addAirportLights, setLights } from './airport-lights';
+import { distanceKm, type Point } from './geo';
+import { replayAt, type Aircraft, type Replay } from './traffic';
+import type { TrafficRenderer } from './traffic-renderer';
 
 @Component({ selector: 'app-root', templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
@@ -10,65 +13,81 @@ export class App implements AfterViewInit, OnDestroy {
   readonly lights = signal(true);
   readonly placing = signal(false);
   readonly mapError = signal(false);
+  readonly dataError = signal('');
   readonly apiStatus = signal('Nicht geprüft');
   readonly checking = signal(false);
-  readonly selected = signal(false);
+  readonly selected = signal<Aircraft | null>(null);
   readonly empty = signal(false);
-  private map?: Map;
-  private markers: Marker[] = [];
+  readonly playing = signal(true);
+  readonly elapsed = signal(0);
+  readonly aircraftCount = signal(0);
+  protected map?: Map;
+  protected center: Point = [8.555, 47.458];
+  private pin?: Marker;
+  private renderer?: TrafficRenderer;
   private destroyed = false;
-  private center: [number, number] = [8.555, 47.458];
-  private refreshAircraft = () => {};
+  private frame = 0;
+  private replay?: Replay;
+  private playbackTime = 0;
+  private lastFrame = 0;
+  private selectedId: string | null = null;
+  private current: Aircraft[] = [];
 
   async ngAfterViewInit() {
     try {
-      const { Map, NavigationControl, Marker } = await import('maplibre-gl');
+      const [{ Map, NavigationControl, Marker }, { TrafficRenderer }] = await Promise.all([import('maplibre-gl'), import('./traffic-renderer')]);
       if (this.destroyed) return;
-      this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9,
-        style: radarStyle() });
+      this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9, style: radarStyle() });
       this.map.addControl(new NavigationControl(), 'top-right');
       this.map.on('load', () => {
-        void addAirportLights(this.map!).then(() => setLights(this.map!, this.lights())).catch(() => this.mapError.set(true));
+        void addAirportLights(this.map!).then(() => { if (!this.destroyed) setLights(this.map!, this.lights()); }).catch(() => this.dataError.set('Flughafenbeleuchtung konnte nicht geladen werden.'));
         this.map!.addSource('ring', { type: 'geojson', data: this.ring() });
         this.map!.addLayer({ id: 'ring-fill', type: 'fill', source: 'ring', paint: { 'fill-color': '#5ae2c4', 'fill-opacity': 0.06 } });
         this.map!.addLayer({ id: 'ring-line', type: 'line', source: 'ring', paint: { 'line-color': '#5ae2c4', 'line-width': 1.5 } });
-        const pin = new Marker({ color: '#5ae2c4' }).setLngLat(this.center).addTo(this.map!);
-        const plane = document.createElement('button');
-        plane.className = 'aircraft';
-        plane.textContent = '✈ DEMO 01 · 4 000 ft';
-        plane.setAttribute('aria-label', 'Simuliertes Flugzeug DEMO 01 auswählen');
-        plane.onclick = (event) => { event.stopPropagation(); this.selected.set(true); };
-        const aircraft = new Marker({ element: plane }).setLngLat([8.62, 47.50]).addTo(this.map!);
-        this.markers.push(pin, aircraft);
-        this.refreshAircraft = () => {
-          const rad = Math.PI / 180;
-          const a = Math.sin((47.50 - this.center[1]) * rad / 2) ** 2
-            + Math.cos(this.center[1] * rad) * Math.cos(47.50 * rad) * Math.sin((8.62 - this.center[0]) * rad / 2) ** 2;
-          plane.hidden = 6371 * 2 * Math.asin(Math.sqrt(Math.min(1, a))) > this.radius();
-          this.empty.set(plane.hidden);
-          if (plane.hidden) this.selected.set(false);
-        };
-        this.map!.on('click', (event) => {
-          if (!this.placing()) return;
-          this.center = [event.lngLat.lng, event.lngLat.lat];
-          pin.setLngLat(this.center);
-          this.placing.set(false);
-          this.updateRing();
-        });
-        this.updateRing();
+        this.pin = new Marker({ color: '#5ae2c4' }).setLngLat(this.center).addTo(this.map!);
+        this.renderer = new TrafficRenderer(this.map!, id => this.selectAircraft(id));
+        this.map!.on('click', event => { if (this.placing()) this.moveRadar([event.lngLat.lng, event.lngLat.lat]); });
+        void this.loadReplay();
       });
     } catch { this.mapError.set(true); }
   }
-
+  private async loadReplay() {
+    try {
+      const response = await fetch('/data/simulation.json');
+      if (!response.ok) throw new Error();
+      this.replay = await response.json();
+      this.playbackTime = this.replay!.start;
+      if (!this.destroyed) this.frame = requestAnimationFrame(time => this.animate(time));
+    } catch { this.dataError.set('Simulation konnte nicht geladen werden. Bitte Seite neu laden.'); }
+  }
+  private animate(time: number) {
+    const delta = this.lastFrame ? Math.min(time - this.lastFrame, 250) : 0;
+    this.lastFrame = time;
+    if (this.replay) {
+      if (this.playing() && !document.hidden) this.playbackTime = Math.min(this.replay.end, this.playbackTime + delta);
+      if (this.playbackTime === this.replay.end) this.playing.set(false);
+      this.elapsed.set(Math.floor((this.playbackTime - this.replay.start) / 1000));
+      this.current = replayAt(this.replay, this.playbackTime);
+      this.renderTraffic();
+    }
+    if (!this.destroyed) this.frame = requestAnimationFrame(next => this.animate(next));
+  }
+  protected renderTraffic() {
+    const visible = this.current.filter(plane => distanceKm(this.center, [plane.lon, plane.lat]) <= this.radius());
+    this.renderer?.update(visible);
+    this.empty.set(visible.length === 0);
+    this.aircraftCount.set(visible.length);
+    this.selected.set(visible.find(plane => plane.id === this.selectedId) ?? null);
+  }
+  selectAircraft(id: string) { this.selectedId = id; this.renderTraffic(); }
+  closeAircraft() { this.selectedId = null; this.selected.set(null); }
+  restart() { if (this.replay) this.playbackTime = this.replay.start; this.playing.set(true); }
+  moveRadar(point: Point) { this.center = point; this.pin?.setLngLat(point); this.placing.set(false); this.updateRing(); }
   setRadius(radius: number) { this.radius.set(radius); this.updateRing(); }
   reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
   airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
   toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
-  private updateRing() {
-    const source = this.map?.getSource<GeoJSONSource>('ring');
-    source?.setData(this.ring());
-    this.refreshAircraft();
-  }
+  protected updateRing() { this.map?.getSource<GeoJSONSource>('ring')?.setData(this.ring()); this.renderTraffic(); }
   private ring(): Feature<Polygon> {
     const rad = Math.PI / 180, lat = this.center[1] * rad, lon = this.center[0] * rad, distance = this.radius() / 6371;
     const coordinates = Array.from({ length: 97 }, (_, index) => {
@@ -89,5 +108,5 @@ export class App implements AfterViewInit, OnDestroy {
     } catch { this.apiStatus.set('Nicht erreichbar · Simulation bleibt verfügbar'); }
     finally { this.checking.set(false); }
   }
-  ngOnDestroy() { this.destroyed = true; this.markers.forEach(marker => marker.remove()); this.map?.remove(); }
+  ngOnDestroy() { this.destroyed = true; cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
 }
