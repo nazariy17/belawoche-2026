@@ -135,5 +135,9 @@ async def weather(icao: str):
     return {'station': icao, 'source': 'NOAA Aviation Weather Center', 'report': {
         'observedAt': report['obsTime'] * 1000,
         'windDirection': report.get('wdir'), 'windSpeedKt': number(report.get('wspd')),
+        'windGustKt': number(report.get('wgst')),
+        'variableWind': bool(re.search(r'\b\d{3}V\d{3}\b', str(report.get('rawOb') or ''))),
+        'cloudCover': report.get('cover'),
+        'clouds': [{'cover': c.get('cover'), 'baseFt': number(c.get('base'))} for c in (report.get('clouds') or []) if isinstance(c, dict)],
         'visibilityMiles': report.get('visib'), 'raw': report.get('rawOb'),
     }}

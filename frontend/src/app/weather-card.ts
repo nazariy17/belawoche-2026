@@ -1,11 +1,12 @@
-import { Component, effect, input, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, computed, effect, input, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import type { Airport } from './airports';
+import { loadRunways, windRunways, type Runway } from './runways';
 
-interface Weather { station: string; source: string; report: { observedAt: number; windDirection: string | number | null; windSpeedKt: number | null; visibilityMiles: string | number | null; raw: string | null } | null; }
+interface Weather { station: string; source: string; report: { observedAt: number; windDirection: string | number | null; windSpeedKt: number | null; windGustKt: number | null; variableWind: boolean; cloudCover: string | null; clouds: { cover: string; baseFt: number | null }[]; visibilityMiles: string | number | null; raw: string | null } | null; }
 
 @Component({
-  selector: 'app-weather-card', imports: [DatePipe],
+  selector: 'app-weather-card', imports: [DatePipe, DecimalPipe],
   template: `
     <section aria-label="Flughafenwetter">
       <h3>Wetter · {{ airport().icao }}</h3>
@@ -16,6 +17,23 @@ interface Weather { station: string; source: string; report: { observedAt: numbe
           <p>{{ data.station }} · {{ report.observedAt | date:'dd.MM.yyyy HH:mm':'UTC' }} UTC</p>
           <p>Wind: {{ report.windDirection === null ? 'unbekannt' : report.windDirection === 'VRB' ? 'variabel' : report.windDirection + '°' }} · {{ report.windSpeedKt === null ? 'unbekannt' : report.windSpeedKt + ' kt' }}</p>
           <p>Sicht: {{ report.visibilityMiles === null ? 'unbekannt' : report.visibilityMiles + ' statute miles' }}</p>
+          @if (windAngle() !== null) {
+            <div style="width:70px;text-align:center;border:1px solid #48616a;border-radius:50%" aria-label="Windrichtung, Norden oben"><span>N</span><b style="display:block;font-size:32px" [style.transform]="'rotate(' + windAngle() + 'deg)'">↑</b></div>
+            <p>Wind aus {{ report.windDirection }}° wahr · Pfeil zeigt, wohin er weht.</p>
+          }
+          @if (report.windGustKt !== null) { <p>Böen: {{ report.windGustKt }} kt</p> }
+          @if (report.variableWind) { <p>Windrichtung schwankt (siehe METAR).</p> }
+          <h4>Bewölkung</h4>
+          @for (cloud of report.clouds; track $index) {
+            <p>{{ cloudLabel(cloud.cover) }} @if (cloud.baseFt !== null) { · {{ cloud.baseFt | number:'1.0-0' }} ft über Grund } @else { · Basis nicht gemeldet }</p>
+          } @empty { <p>{{ cloudLabel(report.cloudCover) }}</p> }
+          <h4>Piste nach Wind · Schätzung</h4>
+          @if (suggestions().length) {
+            @for (runway of suggestions().slice(0, 3); track runway.ident) {
+              <p>RWY {{ runway.ident }} · Gegenwind {{ runway.headwind | number:'1.0-0' }} kt · Seitenwind {{ runway.crosswind | number:'1.0-0' }} kt</p>
+            }
+          } @else { <p>Keine eindeutige Wind-Empfehlung: Wind variabel/schwach, Bericht veraltet oder Pistendaten fehlen.</p> }
+          <p class="credit">Keine bestätigte aktive Piste. ATC, Sperrungen und Betriebsverfahren sind nicht berücksichtigt.</p>
           <code>{{ report.raw || 'Kein Rohbericht verfügbar' }}</code>
           <p class="credit">Quelle: NOAA Aviation Weather Center · Live-Bericht, unabhängig von der Simulation</p>
         }
@@ -33,11 +51,17 @@ export class WeatherCard {
   weather = signal<Weather | null>(null);
   status = signal('Wetter wird nur auf Anfrage geladen.');
   loading = signal(false);
+  runways = signal<Runway[]>([]);
+  windAngle = computed(() => { const r = this.weather()?.report; return r && typeof r.windDirection === 'number' && (r.windSpeedKt ?? 0) > 0 ? (r.windDirection + 180) % 360 : null; });
+  suggestions = computed(() => { const r = this.weather()?.report; return r && !r.variableWind ? windRunways(this.runways(), r.windDirection, r.windSpeedKt, r.observedAt) : []; });
+  cloudLabel(code: string | null) { return ({ FEW: 'Wenige Wolken (1–2 Achtel)', SCT: 'Aufgelockert (3–4 Achtel)', BKN: 'Stark bewölkt (5–7 Achtel)', OVC: 'Bedeckt (8 Achtel)', SKC: 'Wolkenlos', CLR: 'Keine Wolken unter der Messgrenze', NSC: 'Keine signifikanten Wolken', NCD: 'Keine Wolken erkannt', VV: 'Vertikalsicht bei verdecktem Himmel' } as Record<string, string>)[code ?? ''] ?? (code || 'Bewölkung nicht gemeldet'); }
   private controller?: AbortController;
   constructor() {
     effect(onCleanup => {
-      this.airport(); this.weather.set(null); this.loading.set(false); this.status.set('Wetter wird nur auf Anfrage geladen.');
-      onCleanup(() => this.controller?.abort());
+      const airport = this.airport(); this.weather.set(null); this.runways.set([]); this.loading.set(false); this.status.set('Wetter wird nur auf Anfrage geladen.');
+      let cancelled = false;
+      void loadRunways(airport.icao).then(runways => { if (!cancelled) this.runways.set(runways); }).catch(() => {});
+      onCleanup(() => { cancelled = true; this.controller?.abort(); });
     });
   }
   async load() {
