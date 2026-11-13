@@ -4,3 +4,11 @@ body { margin: 0; background: #0a1922; color: #eaf6f4; font-family: 'Segoe UI', 
 button { font: inherit; }
 .aircraft { color: #d8fff4; background: #163e3b; border: 1px solid #6fe1c0; border-radius: 8px; padding: 10px; cursor: pointer; font-size: 12px; }
 .aircraft[hidden] { display: none; }
+.aircraft { width: 34px; height: 34px; padding: 0; background: transparent; border: 0; color: #e5fff8; }
+.aircraft:focus-visible { outline: 2px solid #fff1c9; outline-offset: 4px; }
+.aircraft-icon { display: block; width: 34px; height: 34px; filter: drop-shadow(0 2px 3px #000); }
+.aircraft-icon svg { width: 100%; height: 100%; }
+.aircraft-label { position: absolute; display: flex; align-items: center; gap: 6px; width: 190px; padding: 5px 7px; border: 1px solid #5f807d; border-radius: 5px; background: #102a32ed; color: #ecfff9; text-align: left; pointer-events: auto; }
+.aircraft-label[hidden] { display: none; }
+.aircraft-text { white-space: pre-line; font-size: 10px; line-height: 1.4; }
+.operator-badge { color: white; padding: 6px 4px; font-size: 10px; border-radius: 3px; font-weight: 700; }
