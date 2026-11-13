@@ -15,7 +15,7 @@ def normalize_route(data, callsign, registration, now=None):
     for flight in data['data']:
         if not isinstance(flight, dict) or flight.get('flight_status') != 'active' or flight.get('flight_date') not in dates:
             continue
-        if (flight.get('flight') or {}).get('icao', '').upper() != callsign:
+        if str((flight.get('flight') or {}).get('icao') or '').upper() != callsign:
             continue
         actual_reg = str((flight.get('aircraft') or {}).get('registration') or '').replace('-', '').upper()
         if registration and actual_reg != registration.replace('-', '').upper():

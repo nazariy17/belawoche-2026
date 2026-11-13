@@ -16,6 +16,8 @@ https://github.com/mrjackwills/adsbdb states that route data may not be copied, 
 
 ## Photos: Wikimedia Commons
 
+Exterior matching now requires aircraft-subject metadata and excludes cabin/cockpit/window-view/scenery descriptions. This reduces false positives but is not visual verification. Ten candidates are considered; an uncertain match is omitted. Company-logo PNGs are separately bundled from selected public-domain Commons files; source metadata is in `frontend/public/icons/airlines/sources.json`.
+
 The same-origin `/api/aircraft/photo?registration=HB-JCA` endpoint searches Commons file titles for the registration, checks an exact registration boundary, and returns a thumbnail only with supported Creative Commons license metadata, author and source-page links. HB-JCA was verified against the live API. Image metadata is cached for one day per warm process; image files are served directly by Wikimedia. Missing photos and provider errors are distinct, and the client cancels obsolete requests when selection changes. No lookup runs for synthetic traffic.
 
 Attribution appears beside each image. Photos are displayed without cropping and labelled as archive images: registration matching cannot guarantee the current livery or airframe after a registration is reused. Coverage is not guaranteed. Metadata HTML is converted to plain text; image/source/license URLs use fixed approved HTTPS hosts.
@@ -23,6 +25,12 @@ Attribution appears beside each image. Photos are displayed without cropping and
 References: [Commons reuse guidance](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia), [Imageinfo API](https://www.mediawiki.org/wiki/API:Imageinfo). Each file's source page and license govern reuse.
 
 ## Maps
+
+OurAirports public-domain runway snapshot adds individual runway-end numbers and true headings for 10,134 airports. Extended centerlines and approach-light arrays are geometric illustrations. METAR wind ranking uses true headings, excludes variable/calm/stale winds and does not establish the actual active runway. Clouds preserve layer cover and base height in feet above ground.
+
+## Optional route provider: aviationstack
+
+The HTTPS `/v1/flights` integration uses a server-only `AVIATIONSTACK_API_KEY`, a callsign filter and active-flight status. It rejects ambiguous matches, old flight dates and mismatching aircraft registrations. It makes no request without a key. Credentials and live integration validation remain outstanding; capabilities.routes is intentionally false. Lookup is explicit in the details panel and cached 10 minutes per process. Account quota, HTTPS access and display rights depend on the user's plan. Sources: https://aviationstack.com/faq and https://docs.apilayer.com/aviationstack/docs/api-documentation. ADSBDB route data remains unused.
 
 ## Weather and notices
 
