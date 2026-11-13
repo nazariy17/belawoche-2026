@@ -3,7 +3,7 @@
 Each completed task is validated and pushed separately. Deployment and external verification are tracked explicitly.
 
 - [x] 1. Attributed world map and bundled Zürich airport geometry (OpenFreeMap vector tiles plus local fallback).
-- [ ] 2. Airport lighting and zoom-dependent light points.
+- [x] 2. Airport lighting and zoom-dependent light points; toggle preserves runway pavement/outline.
 - [ ] 3. Timestamped animated offline simulation.
 - [ ] 4. Aircraft silhouettes, direction, altitude and operator badges.
 - [ ] 5. Aircraft detail panel and mobile layout.

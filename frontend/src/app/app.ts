@@ -2,10 +2,12 @@
 import type { GeoJSONSource, Map, Marker } from 'maplibre-gl';
 import type { Feature, Polygon } from 'geojson';
 import { radarStyle } from './map-style';
+import { addAirportLights, setLights } from './airport-lights';
 
 @Component({ selector: 'app-root', templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
   readonly radius = signal(25);
+  readonly lights = signal(true);
   readonly placing = signal(false);
   readonly mapError = signal(false);
   readonly apiStatus = signal('Nicht geprüft');
@@ -26,6 +28,7 @@ export class App implements AfterViewInit, OnDestroy {
         style: radarStyle() });
       this.map.addControl(new NavigationControl(), 'top-right');
       this.map.on('load', () => {
+        void addAirportLights(this.map!).then(() => setLights(this.map!, this.lights())).catch(() => this.mapError.set(true));
         this.map!.addSource('ring', { type: 'geojson', data: this.ring() });
         this.map!.addLayer({ id: 'ring-fill', type: 'fill', source: 'ring', paint: { 'fill-color': '#5ae2c4', 'fill-opacity': 0.06 } });
         this.map!.addLayer({ id: 'ring-line', type: 'line', source: 'ring', paint: { 'line-color': '#5ae2c4', 'line-width': 1.5 } });
@@ -60,6 +63,7 @@ export class App implements AfterViewInit, OnDestroy {
   setRadius(radius: number) { this.radius.set(radius); this.updateRing(); }
   reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
   airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
+  toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
   private updateRing() {
     const source = this.map?.getSource<GeoJSONSource>('ring');
     source?.setData(this.ring());
