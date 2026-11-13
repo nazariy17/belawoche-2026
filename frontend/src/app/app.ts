@@ -9,8 +9,9 @@ import type { TrafficRenderer } from './traffic-renderer';
 import { AircraftCard } from './aircraft-card';
 import { airportMatches, zurich, type Airport } from './airports';
 import { LiveTraffic } from './live-traffic';
+import { WeatherCard } from './weather-card';
 
-@Component({ selector: 'app-root', imports: [AircraftCard], templateUrl: './app.html', styleUrl: './app.scss' })
+@Component({ selector: 'app-root', imports: [AircraftCard, WeatherCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
   readonly radius = signal(25);
   readonly lights = signal(true);

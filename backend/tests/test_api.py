@@ -15,6 +15,7 @@ def test_unimplemented_providers_are_not_advertised():
     assert capabilities['liveTraffic'] is True
     assert capabilities['callsignSearch'] is True
     assert capabilities['registrationSearch'] is True
-    for feature in ("routes", "weather"):
+    assert capabilities['weather'] is True
+    for feature in ("routes",):
         assert capabilities[feature] is False
     assert client.get("/api/unknown").status_code == 404

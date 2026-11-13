@@ -94,3 +94,18 @@ async def traffic(lat: float, lon: float, radius: int):
     data = normalize(await cached_json(f'https://api.adsb.lol/v2/point/{grid_lat}/{grid_lon}/{nm}'))
     data['aircraft'] = [a for a in data['aircraft'] if distance_km(lat, lon, a['lat'], a['lon']) <= radius]
     return data
+
+
+async def weather(icao: str):
+    data = await cached_json(f'https://aviationweather.gov/api/data/metar?ids={icao}&format=json', ttl=600)
+    if not isinstance(data, list):
+        raise HTTPException(502, 'Invalid weather response')
+    reports = [r for r in data if isinstance(r, dict) and r.get('icaoId') == icao and number(r.get('obsTime')) is not None]
+    if not reports:
+        return {'station': icao, 'report': None, 'source': 'NOAA Aviation Weather Center'}
+    report = max(reports, key=lambda r: r['obsTime'])
+    return {'station': icao, 'source': 'NOAA Aviation Weather Center', 'report': {
+        'observedAt': report['obsTime'] * 1000,
+        'windDirection': report.get('wdir'), 'windSpeedKt': number(report.get('wspd')),
+        'visibilityMiles': report.get('visib'), 'raw': report.get('rawOb'),
+    }}

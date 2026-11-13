@@ -55,6 +55,7 @@
       <p>{{ airport().iata }} / {{ airport().icao }} · {{ airport().country }}</p>
       <button (click)="saveOpeningAirport()">Als Startflughafen speichern</button>
       <label class="color-control">Radarfarbe <input type="color" [value]="accent()" (input)="setAccent($any($event.target).value)" /></label>
+      <app-weather-card [airport]="airport()" />
       @if (preferenceStatus()) { <p role="status">{{ preferenceStatus() }}</p> }
       <div class="divider"></div>
       <h3>Ein Projekt von Ewan</h3>

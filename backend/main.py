@@ -2,7 +2,7 @@
 
 from typing import Literal
 from fastapi import FastAPI, Query
-from providers import traffic, cached_json, normalize
+from providers import traffic, cached_json, normalize, weather
 
 app = FastAPI(
     title="Ewan's flight radar",
@@ -26,7 +26,7 @@ def capabilities() -> dict:
         "callsignSearch": True,
         "registrationSearch": True,
         "routes": False,
-        "weather": False,
+        "weather": True,
         "demoAirport": {"icao": "LSZH", "name": "Zürich", "lat": 47.458, "lon": 8.555},
     }
 
@@ -40,3 +40,8 @@ async def get_traffic(lat: float = Query(ge=-85, le=85), lon: float = Query(ge=-
 async def search_aircraft(kind: Literal['callsign', 'registration'], q: str = Query(min_length=2, max_length=12, pattern=r'^[A-Za-z0-9-]+$')):
     endpoint = 'callsign' if kind == 'callsign' else 'reg'
     return normalize(await cached_json(f'https://api.adsb.lol/v2/{endpoint}/{q.upper()}', ttl=30))
+
+
+@app.get('/api/weather')
+async def get_weather(icao: str = Query(pattern=r'^[A-Za-z]{4}$')):
+    return await weather(icao.upper())

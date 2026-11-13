@@ -16,4 +16,8 @@ https://github.com/mrjackwills/adsbdb states that route data may not be copied, 
 
 ## Maps
 
+## Weather and notices
+
+NOAA Aviation Weather Center: https://aviationweather.gov/data/api/. Zürich (`LSZH`) returned a current METAR with station, Unix-seconds observation time, wind in knots, visibility in statute miles and raw text. Cached for 10 minutes; fetch only on user request. Empty/204 is distinct from upstream failure. AWC requires a custom User-Agent and limits calls to 100/minute; requests stay server-side because CORS is not supported. DFS AIS https://ais.dfs.de/ returned HTTP 200; linked only for German airports with the registration requirement displayed. No NOTAM feed or republication is claimed.
+
 OpenFreeMap public instance: https://openfreemap.org and https://openfreemap.org/quick_start/. Local ODbL Zürich geometry extracted from its vector tiles; provenance in public/data/sources.json. Natural Earth public-domain coarse map is bundled. No runtime Overpass calls. Airport search data comes from OurAirports through the datasets/airport-codes mirror; attribution and licenses in public/data/LICENSE.md.
