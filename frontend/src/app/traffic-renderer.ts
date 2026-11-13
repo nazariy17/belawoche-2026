@@ -1,9 +1,10 @@
 ﻿import { Marker, type Map as RadarMap } from 'maplibre-gl';
 import type { Aircraft } from './traffic';
 import { aircraftIcon, iconLabels, iconSizes, iconUrl, type AircraftIcon } from './aircraft-icons';
+import { airlineLogo } from './airlines';
 
 export const operatorColors: Record<string, string> = { SWR: '#d42b3b', DLH: '#294c9d', EZY: '#d75b08', BAW: '#263f80', UAE: '#ac2636' };
-type Item = { marker: Marker; element: HTMLButtonElement; icon: HTMLImageElement; iconKind?: AircraftIcon; label: HTMLSpanElement; badge: HTMLSpanElement; text: HTMLSpanElement };
+type Item = { marker: Marker; element: HTMLButtonElement; icon: HTMLImageElement; iconKind?: string; label: HTMLSpanElement; badge: HTMLSpanElement; text: HTMLSpanElement; operator?: string | null };
 export class TrafficRenderer {
   private markers = new Map<string, Item>();
   constructor(private map: RadarMap, private select: (id: string) => void) {}
@@ -26,8 +27,9 @@ export class TrafficRenderer {
         this.markers.set(plane.id, item);
       }
       const kind = aircraftIcon(plane);
-      if (item.iconKind !== kind) {
-        item.icon.src = iconUrl(kind); item.iconKind = kind;
+      const asset = iconUrl(kind, plane.operator);
+      if (item.iconKind !== asset) {
+        item.icon.src = asset; item.iconKind = asset;
         item.element.style.width = item.element.style.height = `${iconSizes[kind]}px`;
         item.element.dataset['aircraftKind'] = kind;
       }
@@ -35,9 +37,19 @@ export class TrafficRenderer {
       const angle = plane.heading ?? plane.track;
       item.icon.style.transform = `rotate(${angle ?? 0}deg)`;
       item.icon.style.opacity = plane.stale ? '0.45' : '1';
-      item.badge.textContent = plane.operator ?? '—';
+      if (item.operator !== plane.operator) {
+        item.operator = plane.operator;
+        item.badge.replaceChildren();
+        const logo = airlineLogo(plane.operator);
+        if (logo) {
+          const image = document.createElement('img'); image.src = logo; image.alt = plane.airline ?? plane.operator ?? '';
+          image.width = 46; image.height = 26;
+          image.onerror = () => { item!.badge.textContent = plane.operator ?? '—'; };
+          item.badge.append(image);
+        } else item.badge.textContent = plane.operator ?? '—';
+        item.badge.style.background = logo ? '#fff' : operatorColors[plane.operator ?? ''] ?? '#536571';
+      }
       item.badge.title = plane.airline ?? (plane.operator ? `ICAO-Rufzeichen: ${plane.operator}` : 'Betreiber nicht gemeldet');
-      item.badge.style.background = operatorColors[plane.operator ?? ''] ?? '#536571';
       const direction = angle === null ? 'Richtung unbekannt' : `${plane.heading !== null ? 'Steuerkurs' : 'Flugrichtung'} ${Math.round(angle)}°`;
       item.text.textContent = `${plane.callsign} · ${plane.aircraftType || '?'}\n${direction} · ${plane.altitudeFt === null ? 'Höhe unbekannt' : Math.round(plane.altitudeFt) + ' ft'}${plane.stale ? ' · veraltet' : ''}`;
       item.element.setAttribute('aria-label', `${plane.airline ?? 'Unbekannte Airline'}, ${iconLabels[kind]}, ${item.text.textContent}. Details öffnen`);

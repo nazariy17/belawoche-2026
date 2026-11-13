@@ -14,4 +14,14 @@ const icons={
  helicopter:'<ellipse cx="32" cy="27" rx="7" ry="13"/><path d="M30 34 34 34 34 56 30 56Z"/><path d="M23 53H41M7 8L57 45M7 45L57 8" stroke="#e5fff8" stroke-width="3" stroke-linecap="round"/>',
  unknown:'<path d="M32 7 48 49 32 41 16 49Z" fill="none" stroke="#e5fff8" stroke-width="3" stroke-linejoin="round"/>',
 };
-for (const [name,body] of Object.entries(icons)) await writeFile(new URL(`../frontend/public/icons/aircraft/${name}.svg`,import.meta.url),`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="#e5fff8">${body}</g></svg>\n`);
+const palettes = { '': ['#647d91', '#e5eff4'], SWR: ['#d71920', '#fafafa'], DLH: ['#061b45', '#f7f8fa'], EZY: ['#ff6600', '#fff7ef'], BAW: ['#133b70', '#f8fafc'], EDW: ['#d71920', '#fcfcfc'], UAE: ['#16834d', '#f9f9f6'] };
+for (const [name, original] of Object.entries(icons)) for (const [brand, [color, white]] of Object.entries(palettes)) {
+  let body = original.replace(tail, tail.replace('<path', `<path fill="${color}"`));
+  const airliner = ['medium', 'large', 'heavy-twin', 'heavy-four', 'heavy'].includes(name);
+  const cockpit = airliner || name === 'small' ? '<path d="M29.5 9 Q32 7 34.5 9 L34.5 12 32 11 29.5 12Z" fill="#183c50" stroke="none"/>' : '';
+  const windows = airliner ? Array.from({length: 11}, (_, i) => `<path d="M29 ${15 + i * 2.6}h.7 M34.3 ${15 + i * 2.6}h.7" stroke="#315062" stroke-width=".7"/>`).join('') : '';
+  const panels = airliner ? `<path d="M7 39 26 29M38 29 57 39" fill="none" stroke="#8497a2" stroke-width=".6"/><path d="M31 47 32 56 33 47Z" fill="${color}"/><path d="M28 16V42" stroke="${color}" stroke-width=".7"/>` : '';
+  const cross = brand === 'SWR' && airliner ? '<path d="M31 50h2v2h2v2h-2v2h-2v-2h-2v-2h2Z" fill="white" stroke="none"/>' : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="body"><stop stop-color="#8ea4b1"/><stop offset=".45" stop-color="${white}"/><stop offset=".65" stop-color="#fff"/><stop offset="1" stop-color="#8ea4b1"/></linearGradient></defs><g fill="url(#body)" stroke="#708894" stroke-width=".6" stroke-linejoin="round">${body}${panels}${cockpit}${windows}${cross}</g></svg>\n`;
+  await writeFile(new URL(`../frontend/public/icons/aircraft/${name}${brand ? '-' + brand : ''}.svg`, import.meta.url), svg);
+}

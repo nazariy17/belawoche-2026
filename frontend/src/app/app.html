@@ -49,7 +49,7 @@
             <span><img [src]="iconUrl(icon)" alt="" width="36" height="36" />{{ iconLabels[icon] }}</span>
           }
         </div>
-        <p>Vereinfachte Silhouetten nach Flugzeugtyp, sonst nach gemeldeter ADS-B-Kategorie. Keine amtliche Gewichtsklassifizierung.</p>
+        <p>Flugzeugsymbole nach Typ, sonst ADS-B-Kategorie. Airline-Farben nach Rufzeichen für unterstützte Betreiber; Sonderlackierungen und Wet-Lease können abweichen. Keine amtliche Gewichtsklassifizierung.</p>
       </details>
       @if (mapError()) { <p role="alert" class="caption">{{ mapError() }}</p> }
       @if (dataError()) { <p role="alert" class="caption">{{ dataError() }}</p> }

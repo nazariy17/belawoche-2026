@@ -1,11 +1,12 @@
 import type { Aircraft } from './traffic';
+import { airlineBrand } from './airlines';
 
 export type AircraftIcon = 'small' | 'medium' | 'large' | 'heavy-twin' | 'heavy-four' | 'heavy' | 'helicopter' | 'unknown';
 export const iconLabels: Record<AircraftIcon, string> = {
   small: 'Klein', medium: 'Mittel', large: 'Groß', 'heavy-twin': 'Heavy · 2 Triebwerke',
   'heavy-four': 'Heavy · 4 Triebwerke', heavy: 'Heavy · Triebwerke unbekannt', helicopter: 'Hubschrauber', unknown: 'Typ unbekannt',
 };
-export const iconSizes: Record<AircraftIcon, number> = { small: 27, medium: 32, large: 37, 'heavy-twin': 43, 'heavy-four': 49, heavy: 43, helicopter: 31, unknown: 30 };
+export const iconSizes: Record<AircraftIcon, number> = { small: 32, medium: 40, large: 46, 'heavy-twin': 54, 'heavy-four': 60, heavy: 54, helicopter: 36, unknown: 30 };
 const types: Partial<Record<string, AircraftIcon>> = {};
 function register(icon: AircraftIcon, codes: string) { for (const code of codes.split(' ')) types[code] = icon; }
 // Deliberately explicit ICAO designators: do not infer engine count from size,
@@ -29,4 +30,4 @@ export function aircraftIcon(plane: Pick<Aircraft, 'aircraftType' | 'category'>)
     default: return 'unknown';
   }
 }
-export function iconUrl(icon: AircraftIcon) { return `/icons/aircraft/${icon}.svg`; }
+export function iconUrl(icon: AircraftIcon, operator?: string | null) { const brand = airlineBrand[operator ?? '']; return `/icons/aircraft/${icon}${brand ? '-' + brand : ''}.svg`; }
