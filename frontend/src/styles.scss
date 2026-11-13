@@ -6,7 +6,7 @@ button { font: inherit; }
 .aircraft[hidden] { display: none; }
 .aircraft { width: 34px; height: 34px; padding: 0; background: transparent; border: 0; color: #e5fff8; }
 .aircraft:focus-visible { outline: 2px solid #fff1c9; outline-offset: 4px; }
-.aircraft-icon { display: block; width: 34px; height: 34px; filter: drop-shadow(0 2px 3px #000); }
+.aircraft-icon { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 3px #000); }
 .aircraft-icon svg { width: 100%; height: 100%; }
 .aircraft-label { position: absolute; display: flex; align-items: center; gap: 6px; width: 190px; padding: 5px 7px; border: 1px solid #5f807d; border-radius: 5px; background: #102a32ed; color: #ecfff9; text-align: left; pointer-events: auto; }
 .aircraft-label[hidden] { display: none; }

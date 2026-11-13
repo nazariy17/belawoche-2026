@@ -80,7 +80,7 @@ def normalize(data):
         heading = number(item.get('true_heading'))  # Do not confuse magnetic heading with true heading.
         aircraft.append(dict(id=str(item['hex']), callsign=callsign, registration=item.get('r'),
             airline=AIRLINES.get(prefix), operator=prefix if prefix in AIRLINES else None,
-            aircraftType=item.get('t'), lon=lon, lat=lat,
+            aircraftType=item.get('t'), category=item.get('category'), lon=lon, lat=lat,
             altitudeFt=0 if item.get('alt_baro') == 'ground' else number(item.get('alt_baro')),
             speedKt=number(item.get('gs')), track=number(item.get('track')), heading=heading,
             observedAt=timestamp - max(0, seen) * 1000))

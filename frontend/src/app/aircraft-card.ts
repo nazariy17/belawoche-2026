@@ -2,6 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { bearing, distanceKm, type Point } from './geo';
 import type { Aircraft } from './traffic';
+import { aircraftIcon, iconLabels, iconUrl } from './aircraft-icons';
 
 @Component({
   selector: 'app-aircraft-card', imports: [DecimalPipe],
@@ -10,7 +11,8 @@ import type { Aircraft } from './traffic';
     <p class="eyebrow">{{ simulation() ? 'SIMULATION' : 'BEOBACHTETES FLUGZEUG' }}</p>
     <h2>{{ aircraft().callsign }}</h2>
     <p>{{ aircraft().airline || 'Airline unbekannt' }} · {{ aircraft().operator || '—' }}</p>
-    <div class="silhouette" aria-label="Flugzeugsilhouette, kein Foto">✈</div>
+    <div class="silhouette"><img [src]="iconUrl(icon())" [alt]="iconLabels[icon()] + ' · Silhouette, kein Foto'" width="84" height="84" /></div>
+    <p>{{ iconLabels[icon()] }}</p>
     <p class="muted">Kein lizenziertes Foto verfügbar</p>
     <dl>
       <dt>Registrierung</dt><dd>{{ aircraft().registration || 'Unbekannt' }}</dd>
@@ -27,7 +29,10 @@ import type { Aircraft } from './traffic';
   styles: `:host{display:block;position:relative}.close{float:right;border:1px solid #4c686f;border-radius:6px;background:#19343c;color:white;padding:8px;cursor:pointer}.eyebrow{font-size:10px;letter-spacing:2px;color:#74dfc3}h2{margin:12px 0;font-size:26px}p{color:#acc1c9;font-size:13px;line-height:1.5}.silhouette{text-align:center;font-size:64px;color:#91b5bd;background:#17303b;border-radius:12px}.muted{font-size:11px}dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 8px;font-size:12px}dt{color:#9bb4bf}dd{margin:0;text-align:right}small{display:block;color:#9bb4bf;margin-top:4px}.route{border-top:1px solid #36515b;padding-top:16px;margin-top:20px;font-size:13px}`,
 })
 export class AircraftCard {
+  readonly iconLabels = iconLabels;
+  readonly iconUrl = iconUrl;
   aircraft = input.required<Aircraft>();
+  icon = computed(() => aircraftIcon(this.aircraft()));
   center = input.required<Point>();
   now = input.required<number>();
   simulation = input(true);

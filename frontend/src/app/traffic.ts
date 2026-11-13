@@ -7,6 +7,7 @@ export interface Observation {
 export interface Aircraft extends Observation {
   id: string; callsign: string; registration: string | null;
   airline: string | null; operator: string | null; aircraftType: string | null;
+  category?: string | null;
   stale?: boolean;
 }
 export interface ReplayAircraft extends Omit<Aircraft, keyof Observation | 'stale'> { samples: Observation[]; }

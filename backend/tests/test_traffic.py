@@ -25,12 +25,14 @@ def test_browser_query_string_radius_is_accepted():
 
 
 def test_units_observation_age_and_missing_values():
-    result = providers.normalize({'now': 100_000, 'ac': [dict(hex='abc123', lat=47, lon=8, seen_pos=2, flight='SWR123 ', alt_baro='ground', mag_heading=100)]})['aircraft'][0]
+    result = providers.normalize({'now': 100_000, 'ac': [dict(hex='abc123', lat=47, lon=8, seen_pos=2, flight='SWR123 ', alt_baro='ground', mag_heading=100, category='A5', t='A359')]})['aircraft'][0]
     assert result['observedAt'] == 98000
     assert result['altitudeFt'] == 0
     assert result['heading'] is None
     assert result['callsign'] == 'SWR123'
     assert result['speedKt'] is None
+    assert result['category'] == 'A5'
+    assert result['aircraftType'] == 'A359'
 
 
 def test_provider_failure_is_not_reported_as_empty():

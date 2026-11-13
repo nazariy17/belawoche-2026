@@ -10,9 +10,13 @@ import { AircraftCard } from './aircraft-card';
 import { airportMatches, zurich, type Airport } from './airports';
 import { LiveTraffic } from './live-traffic';
 import { WeatherCard } from './weather-card';
+import { iconLabels, iconUrl, type AircraftIcon } from './aircraft-icons';
 
 @Component({ selector: 'app-root', imports: [AircraftCard, WeatherCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
+  readonly iconLabels = iconLabels;
+  readonly iconUrl = iconUrl;
+  readonly legendIcons: AircraftIcon[] = ['small', 'medium', 'large', 'heavy-twin', 'heavy-four', 'heavy', 'helicopter', 'unknown'];
   readonly radius = signal(25);
   readonly lights = signal(true);
   readonly placing = signal(false);
@@ -36,6 +40,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly mode = signal<'simulation' | 'live'>('live');
   readonly liveStatus = signal('Live-Verbindung wird gestartet …');
   readonly liveError = signal(false);
+  readonly following = signal(false);
+  private lastFollow = 0;
   readonly lookupStatus = signal('');
   readonly lookupResults = signal<Aircraft[]>([]);
   readonly lookupKind = signal<'callsign' | 'registration'>('callsign');
@@ -78,6 +84,7 @@ export class App implements AfterViewInit, OnDestroy {
         this.pin = new Marker({ color: '#5ae2c4' }).setLngLat(this.center).addTo(this.map!);
         this.renderer = new TrafficRenderer(this.map!, id => this.selectAircraft(id));
         this.map!.on('click', event => { if (this.placing()) this.moveRadar([event.lngLat.lng, event.lngLat.lat]); });
+        this.map!.on('dragstart', () => this.following.set(false));
         this.frame = requestAnimationFrame(time => this.animate(time));
         if (this.mode() === 'live') this.live.start(this.center, this.radius());
         void this.loadReplay();
@@ -109,6 +116,11 @@ export class App implements AfterViewInit, OnDestroy {
     if (this.mode() === 'live') {
       this.clock.set(Date.now()); this.current = this.live.at(this.clock()); this.renderTraffic();
     }
+    const followed = this.selected();
+    if (this.following() && followed && !followed.stale && time - this.lastFollow > 1000) {
+      this.lastFollow = time;
+      this.map?.easeTo({ center: [followed.lon, followed.lat], duration: 900 });
+    }
     if (!this.destroyed) this.frame = requestAnimationFrame(next => this.animate(next));
   }
   protected renderTraffic() {
@@ -120,7 +132,7 @@ export class App implements AfterViewInit, OnDestroy {
     this.selected.set(visible.find(plane => plane.id === this.selectedId) ?? null);
   }
   selectAircraft(id: string) { this.selectedId = id; this.renderTraffic(); }
-  closeAircraft() { this.selectedId = null; this.selected.set(null); }
+  closeAircraft() { this.selectedId = null; this.selected.set(null); this.following.set(false); }
   restart() { if (this.replay) this.playbackTime = this.replay.start; this.playing.set(true); }
   moveRadar(point: Point) { this.center = [((point[0] + 540) % 360) - 180, Math.max(-85, Math.min(85, point[1]))]; this.pin?.setLngLat(this.center); this.placing.set(false); this.updateRing(); if (this.mode() === 'live') this.live.start(this.center, this.radius()); }
   setRadius(radius: number) { this.radius.set(radius); this.updateRing(); this.savePreferences(); if (this.mode() === 'live') this.live.start(this.center, radius); }
