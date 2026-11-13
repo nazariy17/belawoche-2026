@@ -225,3 +225,7 @@ node_modules/
 .vercel/
 .env.*
 !.env.example
+
+.tools/
+frontend/test-results/
+frontend/playwright-report/

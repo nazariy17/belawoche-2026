@@ -1,6 +1,7 @@
 ﻿import { AfterViewInit, Component, OnDestroy, signal } from '@angular/core';
 import type { GeoJSONSource, Map, Marker } from 'maplibre-gl';
 import type { Feature, Polygon } from 'geojson';
+import { radarStyle } from './map-style';
 
 @Component({ selector: 'app-root', templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
@@ -22,7 +23,7 @@ export class App implements AfterViewInit, OnDestroy {
       const { Map, NavigationControl, Marker } = await import('maplibre-gl');
       if (this.destroyed) return;
       this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9,
-        style: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#091b26' } }] } });
+        style: radarStyle() });
       this.map.addControl(new NavigationControl(), 'top-right');
       this.map.on('load', () => {
         this.map!.addSource('ring', { type: 'geojson', data: this.ring() });
@@ -58,6 +59,7 @@ export class App implements AfterViewInit, OnDestroy {
 
   setRadius(radius: number) { this.radius.set(radius); this.updateRing(); }
   reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
+  airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
   private updateRing() {
     const source = this.map?.getSource<GeoJSONSource>('ring');
     source?.setData(this.ring());
