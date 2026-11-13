@@ -165,8 +165,12 @@ export class App implements AfterViewInit, OnDestroy {
     this.moveRadar([plane.lon, plane.lat]); this.setMode('live'); this.reset();
     this.selectedId = plane.id; this.lookupResults.set([]); this.lookupStatus.set('Radar zur letzten gemeldeten Position versetzt.');
   }
-  reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
-  airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
+  reset() { this.following.set(false); this.map?.flyTo({ center: this.center, zoom: 9 }); }
+  airportZoom(zoom: number) {
+    this.following.set(false);
+    const airport = this.airport();
+    this.map?.flyTo({ center: [airport.lon, airport.lat], zoom });
+  }
   toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
   async searchAirports(query: string) {
     this.airportQuery.set(query);

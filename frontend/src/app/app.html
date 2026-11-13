@@ -35,8 +35,8 @@
           }
         </div>
         <button (click)="reset()">Zum Radar</button>
-        <button (click)="airportZoom(13)">Anflug Zürich</button>
-        <button (click)="airportZoom(16)">Flughafen Zürich</button>
+        <button (click)="airportZoom(13)">Anflug {{ airport().iata || airport().icao }}</button>
+        <button (click)="airportZoom(16)">Flughafen {{ airport().iata || airport().icao }}</button>
         <button (click)="toggleLights()" [attr.aria-pressed]="lights()">Lichter {{ lights() ? 'an' : 'aus' }}</button>
       </div>
       <div id="radar-map" aria-label="Interaktive schematische Radarkarte"></div>
