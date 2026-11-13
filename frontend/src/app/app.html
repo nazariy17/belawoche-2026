@@ -11,6 +11,16 @@
   <section class="workspace" aria-label="Radar-Prototyp">
     <div class="map-panel">
       <div class="toolbar">
+        <div class="airport-search">
+          <label for="airport-search">Flughafen suchen</label>
+          <input id="airport-search" type="search" placeholder="Name, Stadt, IATA oder ICAO" [value]="airportQuery()" (input)="searchAirports($any($event.target).value)" />
+          <div class="search-results">
+            @for (result of airportResults(); track result.icao) {
+              <button (click)="chooseAirport(result)">{{ result.iata || result.icao }} · {{ result.name }} · {{ result.city }}</button>
+            }
+          </div>
+          @if (searchStatus()) { <p role="status">{{ searchStatus() }}</p> }
+        </div>
         <button (click)="playing.set(!playing())">{{ playing() ? 'Pause' : 'Abspielen' }}</button>
         <button (click)="restart()">Neustart</button>
         <span class="playback">{{ elapsed() }} / 120 s</span>
@@ -36,8 +46,11 @@
         <app-aircraft-card [aircraft]="plane" [center]="center" [now]="clock()" (closed)="closeAircraft()" />
       } @else {
       <p class="eyebrow">{{ selected() ? 'FLUGZEUG' : 'UNSER STARTPUNKT' }}</p>
-      <h2>{{ selected()?.callsign || 'Zürich' }}</h2>
-      <p>{{ selected() ? 'Fiktives Flugzeug für den ersten Klicktest. Route, Airline und Registrierung sind noch nicht hinterlegt.' : 'ZRH / LSZH · Schweiz' }}</p>
+      <h2>{{ airport().city || airport().name }}</h2>
+      <p>{{ airport().iata }} / {{ airport().icao }} · {{ airport().country }}</p>
+      <button (click)="saveOpeningAirport()">Als Startflughafen speichern</button>
+      <label class="color-control">Radarfarbe <input type="color" [value]="accent()" (input)="setAccent($any($event.target).value)" /></label>
+      @if (preferenceStatus()) { <p role="status">{{ preferenceStatus() }}</p> }
       <div class="divider"></div>
       <h3>Ein Projekt von Ewan</h3>
       <p>Wähle ein Flugzeug auf der Karte oder in dieser Liste.</p>

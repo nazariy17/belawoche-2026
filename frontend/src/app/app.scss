@@ -26,6 +26,12 @@ aside p { font-size: 14px; }
 .api span { color: #9bb4bf; }
 .plane-list { display: grid; gap: 8px; }
 .playback { align-self: center; color: #9bb4bf; font-size: 12px; }
+.airport-search { flex-basis: 100%; position: relative; }
+.airport-search label { display: block; font-size: 12px; color: #a7c4ca; margin-bottom: 6px; }
+.airport-search input { width: 100%; padding: 12px; background: #0d222c; color: white; border: 1px solid #44616b; border-radius: 8px; }
+.search-results { display: grid; gap: 3px; }
+.search-results button { text-align: left; }
+.color-control { display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-top: 16px; }
 @media (max-width: 800px) { aside.selected-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; max-height: 65dvh; overflow-y: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px #0009; } }
 footer { display: flex; justify-content: space-between; gap: 1rem; padding: 24px 0; color: #809aa8; font-size: 12px; }
 @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } aside { border-left: 0; border-top: 1px solid #28404d; } header, footer { flex-wrap: wrap; } #radar-map { height: 360px; } }
