@@ -10,6 +10,8 @@ Cache/cooldown is bounded and per warm Python process. Vercel cold starts and mu
 
 ## Routes: ADSBDB — blocked for publication
 
+Worldwide traffic lookup was tested with a positioned aircraft: `/v2/callsign/T7437` and `/v2/reg/T7-437` both returned the same aircraft identifier. A nonexistent callsign returned HTTP 200 and an empty aircraft array. These endpoints search tracked observations, not a complete registration database; missing/unpositioned aircraft are not shown as located.
+
 https://github.com/mrjackwills/adsbdb states that route data may not be copied, published or incorporated into other databases without explicit permission from David J Taylor. No route data is bundled or published; capabilities.routes remains false. Source-code MIT licensing is not permission for the route database. Aircraft photos from the API also need individual publication permission. The UI uses an original silhouette instead.
 
 ## Maps

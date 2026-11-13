@@ -35,6 +35,11 @@ export class App implements AfterViewInit, OnDestroy {
   readonly mode = signal<'simulation' | 'live'>('simulation');
   readonly liveStatus = signal('');
   readonly liveError = signal(false);
+  readonly lookupStatus = signal('');
+  readonly lookupResults = signal<Aircraft[]>([]);
+  readonly lookupKind = signal<'callsign' | 'registration'>('callsign');
+  readonly lookupQuery = signal('');
+  private lookupController?: AbortController;
   private live = new LiveTraffic((message, error) => { this.liveStatus.set(message); this.liveError.set(error); });
   private airports?: Airport[];
   private airportLoad?: Promise<Airport[]>;
@@ -112,6 +117,26 @@ export class App implements AfterViewInit, OnDestroy {
     if (mode === 'live') this.live.start(this.center, this.radius());
     else { this.live.stop(); this.chooseAirport(zurich); this.restart(); }
   }
+  async lookupAircraft() {
+    this.lookupController?.abort();
+    this.lookupResults.set([]);
+    const query = this.lookupQuery().trim().toUpperCase();
+    if (!/^[A-Z0-9-]{2,12}$/.test(query)) { this.lookupStatus.set('Bitte 2–12 Buchstaben, Ziffern oder Bindestriche eingeben.'); return; }
+    const controller = this.lookupController = new AbortController();
+    this.lookupStatus.set('Weltweite Suche …');
+    try {
+      const response = await fetch(`/api/aircraft/search?kind=${this.lookupKind()}&q=${encodeURIComponent(query)}`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(12000)]) });
+      if (!response.ok) throw Error(response.status === 429 ? 'Anfragelimit erreicht. Bitte später erneut suchen.' : 'Flugzeugsuche derzeit nicht erreichbar.');
+      const data = await response.json();
+      if (controller.signal.aborted) return;
+      this.lookupResults.set(data.aircraft);
+      this.lookupStatus.set(data.aircraft.length ? 'Außerhalb des Radar-Radius wird ebenfalls gesucht. Wähle ein Ergebnis, um den Radar zu versetzen.' : 'Kein Flugzeug mit aktueller Position gefunden.');
+    } catch (error) { if (!controller.signal.aborted) this.lookupStatus.set(error instanceof Error ? error.message : 'Suche fehlgeschlagen'); }
+  }
+  locateAircraft(plane: Aircraft) {
+    this.moveRadar([plane.lon, plane.lat]); this.setMode('live'); this.reset();
+    this.selectedId = plane.id; this.lookupResults.set([]); this.lookupStatus.set('Radar zur letzten gemeldeten Position versetzt.');
+  }
   reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
   airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
   toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
@@ -178,5 +203,5 @@ export class App implements AfterViewInit, OnDestroy {
     } catch { this.apiStatus.set('Nicht erreichbar · Simulation bleibt verfügbar'); }
     finally { this.checking.set(false); }
   }
-  ngOnDestroy() { this.destroyed = true; this.live.destroy(); cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
+  ngOnDestroy() { this.destroyed = true; this.lookupController?.abort(); this.live.destroy(); cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
 }

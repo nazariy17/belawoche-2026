@@ -72,5 +72,15 @@
       }
     </aside>
   </section>
+  <details class="lookup">
+    <summary>Flugzeug weltweit finden · Live-Suche</summary>
+    <form (submit)="$event.preventDefault(); lookupAircraft()">
+      <label>Suchtyp <select [value]="lookupKind()" (change)="lookupKind.set($any($event.target).value)"><option value="callsign">Rufzeichen</option><option value="registration">Registrierung</option></select></label>
+      <label>Flugzeug <input type="search" placeholder="z. B. SWR123 oder HB-JCA" [value]="lookupQuery()" (input)="lookupQuery.set($any($event.target).value)" maxlength="12" /></label>
+      <button type="submit">Weltweit suchen</button>
+    </form>
+    <p role="status">{{ lookupStatus() }}</p>
+    @for (plane of lookupResults(); track plane.id) { <button (click)="locateAircraft(plane)">{{ plane.callsign }} · {{ plane.registration || 'Unbekannt' }} · Radar hierher versetzen</button> }
+  </details>
   <footer>Flugzeuge verstehen. Die Welt entdecken. <span>BELA-Woche · Ewan</span></footer>
 </main>

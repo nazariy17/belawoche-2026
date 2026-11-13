@@ -32,6 +32,11 @@ aside p { font-size: 14px; }
 .search-results { display: grid; gap: 3px; }
 .search-results button { text-align: left; }
 .color-control { display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-top: 16px; }
+.lookup { margin-top: 24px; padding: 18px; border: 1px solid #34505e; border-radius: 12px; }
+.lookup form { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; align-items: end; }
+.lookup label { display: grid; gap: 6px; font-size: 12px; }
+.lookup input, .lookup select { background: #142c39; color: white; border: 1px solid #49616b; padding: 10px; border-radius: 6px; }
+.lookup summary { cursor: pointer; }
 @media (max-width: 800px) { aside.selected-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; max-height: 65dvh; overflow-y: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px #0009; } }
 footer { display: flex; justify-content: space-between; gap: 1rem; padding: 24px 0; color: #809aa8; font-size: 12px; }
 @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } aside { border-left: 0; border-top: 1px solid #28404d; } header, footer { flex-wrap: wrap; } #radar-map { height: 360px; } }

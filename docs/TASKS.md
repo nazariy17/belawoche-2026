@@ -9,7 +9,7 @@ Each completed task is validated and pushed separately. Deployment and external 
 - [x] 5. Aircraft detail panel, unit conversions, observation age, distance/bearing and mobile bottom sheet; accessible aircraft list.
 - [x] 6. Airport search (48,070 large/medium/small airports) and persistent radius, radar colour and opening airport.
 - [x] 7. Cached live traffic, distinct failures, rate-limit backoff and explicit simulation fallback. Cache is process-local (see PROVIDERS.md).
-- [ ] 8. Verified worldwide aircraft lookup.
+- [x] 8. Verified worldwide callsign and registration lookup, separated from radius filtering, with explicit move-to-result action.
 - [ ] 9. Routes and photos (route publication permission unresolved; silhouette fallback required).
 - [ ] 10. METAR and official notices links.
 - [ ] 11. Automated/browser checks and Vercel deployment; phone/second-network acceptance remains a manual check.
