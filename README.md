@@ -21,7 +21,7 @@ npm run setup:frontend
 npm run dev
 ```
 
-Open http://localhost:4200. The schematic simulation works without the API or external map tiles. It is not a recorded replay or a complete offline-installable application.
+Open http://localhost:4200. **Live mode starts automatically and requires the backend below.** The Simulation button explicitly switches to a bundled synthetic scenario, which works without the API. It is not a recorded replay or a complete offline-installable application.
 
 For the backend, in another terminal:
 
@@ -40,11 +40,12 @@ On macOS/Linux use `backend/.venv/bin/python` instead of the Windows Python path
 
 ```powershell
 npm run build
+npm --prefix frontend test
 cd backend
 .venv/Scripts/python.exe -m pytest
 ```
 
-The frontend build checks TypeScript and Angular templates. API tests cover health, OpenAPI, unknown endpoints and disabled capabilities. There are no frontend automated interaction tests yet.
+The frontend build checks TypeScript and Angular templates. Frontend tests cover geodesy, interpolation, icon classification, airport data, worker assets, cancellation, stale observations and rate-limit backoff. API tests cover normalization, query validation, caching, provider limits and weather. Full browser visual acceptance is still pending.
 
 ## Vercel deployment
 
@@ -56,8 +57,10 @@ After deployment verify `/`, `/api/health`, `/api/capabilities`, `/api/docs` and
 
 ## Implemented and next steps
 
-The starter includes a responsive German screen, a schematic MapLibre canvas centred on Zürich, a movable pin, 10/25/50 km geographic filtering, a selectable stationary synthetic aircraft, an empty state, and an explicit API health check. It requests no external imagery, tiles or live aircraft data.
+The radar now includes an attributed world map and local Zürich geometry, runway lighting, airport search, live traffic, worldwide aircraft lookup, aircraft details, weather and official German briefing links. Live traffic refreshes every 30 seconds, interpolates between observations and freezes stale positions. Updates pause in hidden tabs. Select a plane and choose **Flugzeug folgen** to follow it; dragging the map stops following without moving the radar pin.
 
-The roadmap remains to be implemented: attributed basemap and airport geometry, runway lighting, timestamped animated replay, airline badges, aircraft details, airport search, live feeds with caching/rate-limit handling, route enrichment, licensed photos, weather and notices. The capabilities endpoint explicitly reports these integrations as unavailable. This scaffold does not yet satisfy the full plan's acceptance checks.
+Aircraft silhouettes distinguish small, medium, large, heavy twin-engine and heavy four-engine aircraft. Additional fallbacks cover helicopters, heavy aircraft with unknown engine count and unknown types. Classification uses an explicit partial ICAO type table, then the reported ADS-B category. These are illustrative visual groups, not official weight classes. The map legend explains the shapes; Simulation includes seven aircraft to preview them.
 
-All demonstration traffic is fictional and labelled **Simulation**. The aircraft symbol uses the system font; no airline imagery or third-party geographic extracts are bundled. Keep provider licensing and attribution review as part of each integration.
+Remaining work: route-publication permission, licensed photos, visual acceptance and Vercel deployment. See [task status](docs/TASKS.md) and [provider limits/licensing](docs/PROVIDERS.md). Live mode uses adsb.lol (optional server-side `ADSB_LOL_API_KEY`); its no-key allowance is currently 500 requests/day/IP. Quota exhaustion is displayed explicitly, with a Simulation button. The cache is per server process, not a shared global quota store.
+
+All demonstration traffic is fictional and labelled **Simulation**. SVG silhouettes are original MIT-licensed artwork. Geographic extracts, fonts and airport data retain their own licenses in `frontend/public/data/LICENSE.md` and `frontend/public/fonts/OFL.txt`.
