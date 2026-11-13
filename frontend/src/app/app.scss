@@ -1,48 +1,47 @@
-﻿:host { display: block; }
-main { max-width: 1440px; margin: auto; padding: 0 5vw; }
-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 28px 0; border-bottom: 1px solid #243a45; }
-.brand { display: flex; gap: 12px; align-items: center; color: #eaf6f4; text-decoration: none; font-size: 22px; font-weight: 700; }
-small { display: block; font-size: 10px; letter-spacing: 3px; margin-top: 5px; color: #87a6b3; }
-.badge { color: #81ebcb; background: #143e38; border: 1px solid #296256; border-radius: 30px; padding: 9px 14px; font-size: 12px; }
-.intro { padding: 45px 0 28px; }
-.eyebrow { color: #74dfc3; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
-h1 { font-size: clamp(32px, 5vw, 56px); letter-spacing: -2px; margin: 12px 0; }
-p { color: #9bb4bf; line-height: 1.7; }
-.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 290px; border: 1px solid #28404d; border-radius: 18px; overflow: hidden; }
-.map-panel { min-width: 0; background: #091b26; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; border-bottom: 1px solid #28404d; }
-.radii { display: flex; gap: 4px; }
-button { border: 1px solid #34505e; border-radius: 7px; background: #142c39; color: #ddf0ed; padding: 10px 12px; cursor: pointer; }
-button:hover, button[aria-pressed='true'] { background: #28574f; border-color: #71dfc2; }
-button:focus-visible { outline: 2px solid #71dfc2; outline-offset: 3px; }
-#radar-map { height: 430px; }
-.caption { padding: 0 16px; font-size: 11px; }
-aside { padding: 28px; background: #112632; border-left: 1px solid #28404d; }
-h2 { font-size: 32px; margin: 12px 0; }
-h3 { font-size: 16px; }
-aside p { font-size: 14px; }
-.divider { height: 1px; background: #28404d; margin: 28px 0; }
-.api { display: grid; gap: 12px; margin-top: 28px; font-size: 12px; }
-.api span { color: #9bb4bf; }
-.plane-list { display: grid; gap: 8px; }
-.playback { align-self: center; color: #9bb4bf; font-size: 12px; }
-.airport-search { flex-basis: 100%; position: relative; }
-.airport-search label { display: block; font-size: 12px; color: #a7c4ca; margin-bottom: 6px; }
-.airport-search input { width: 100%; padding: 12px; background: #0d222c; color: white; border: 1px solid #44616b; border-radius: 8px; }
-.search-results { display: grid; gap: 3px; }
-.search-results button { text-align: left; }
-.color-control { display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-top: 16px; }
-.lookup { margin-top: 24px; padding: 18px; border: 1px solid #34505e; border-radius: 12px; }
-.lookup form { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; align-items: end; }
-.lookup label { display: grid; gap: 6px; font-size: 12px; }
-.lookup input, .lookup select { background: #142c39; color: white; border: 1px solid #49616b; padding: 10px; border-radius: 6px; }
-.lookup summary { cursor: pointer; }
-.icon-legend { padding: 12px 16px; font-size: 12px; color: #b9d3d8; border-top: 1px solid #28404d; }
-.icon-legend summary { cursor: pointer; }
-.icon-legend div { display: flex; flex-wrap: wrap; gap: 12px 20px; margin-top: 12px; }
-.icon-legend span { display: flex; gap: 6px; align-items: center; }
-.icon-legend p { font-size: 10px; margin-bottom: 0; }
-.fallback { margin: 0 16px 12px; }
-@media (max-width: 800px) { aside.selected-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; max-height: 65dvh; overflow-y: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px #0009; } }
-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 24px 0; color: #809aa8; font-size: 12px; }
-@media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } aside { border-left: 0; border-top: 1px solid #28404d; } header, footer { flex-wrap: wrap; } #radar-map { height: 360px; } }
+:host{display:block}
+main{height:100dvh;min-height:320px;display:flex;flex-direction:column;background:#091b26;overflow:hidden}
+main:fullscreen,main.expanded{width:100%;height:100dvh;max-width:none}
+main.expanded{position:fixed;inset:0;z-index:1000}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 18px;min-height:62px;border-bottom:1px solid #28404d;background:#0d202b}
+.brand{display:flex;gap:10px;align-items:center;color:#eaf6f4;text-decoration:none;font-size:18px;font-weight:700;white-space:nowrap}
+.brand small{display:block;font-size:9px;letter-spacing:2px;margin-top:3px;color:#87a6b3}
+.header-actions{display:flex;gap:8px;align-items:center}
+.badge{color:#81ebcb;background:#143e38;border:1px solid #296256;border-radius:30px;padding:7px 10px;font-size:11px;white-space:nowrap}
+button,summary{font-size:12px}
+button{border:1px solid #34505e;border-radius:7px;background:#142c39;color:#ddf0ed;padding:9px 11px;cursor:pointer}
+button:hover,button[aria-pressed=true]{background:#28574f;border-color:#71dfc2}
+button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #71dfc2;outline-offset:2px}
+.workspace{position:relative;display:grid;grid-template-columns:minmax(0,1fr);flex:1;min-height:0;overflow:hidden}
+.workspace.panel-open{grid-template-columns:minmax(0,1fr) 330px}
+.map-panel{min-width:0;min-height:0;display:flex;flex-direction:column}
+.toolbar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #28404d;background:#102631;z-index:5;flex-wrap:wrap}
+.airport-search{position:relative;flex:1;min-width:180px;max-width:480px}
+.airport-search label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.airport-search input{width:100%;padding:10px 12px;background:#091b26;color:white;border:1px solid #44616b;border-radius:8px}
+.search-results{position:absolute;top:100%;left:0;right:0;display:grid;gap:3px;max-height:50dvh;overflow:auto;background:#102631;box-shadow:0 12px 24px #0007}
+.search-results:empty{display:none}
+.search-results button{text-align:left}
+.airport-search p{position:absolute;top:100%;background:#102631;padding:10px;margin:0;font-size:12px}
+.map-options{position:relative;margin-left:auto}
+.map-options summary{cursor:pointer;padding:10px;border:1px solid #34505e;border-radius:7px}
+.options-content{position:absolute;right:0;top:calc(100% + 10px);width:310px;max-width:calc(100vw - 28px);max-height:65dvh;overflow:auto;padding:14px;background:#112632;border:1px solid #48616a;border-radius:10px;display:flex;gap:8px;flex-wrap:wrap;box-shadow:0 12px 40px #0009}
+.radii{display:flex;gap:4px;width:100%}.radii button{flex:1}
+.playback{color:#9bb4bf;font-size:11px}
+.map-stage{position:relative;flex:1;min-height:0;overflow:hidden}
+#radar-map{position:absolute;inset:0;width:100%;height:100%}
+.map-shortcuts{position:absolute;top:14px;left:14px;display:flex;gap:6px;max-width:calc(100% - 65px);flex-wrap:wrap;pointer-events:none}
+.map-shortcuts button{pointer-events:auto;background:#102631ed;box-shadow:0 2px 12px #0005}
+.map-info{position:absolute;bottom:36px;left:14px;max-width:min(460px,calc(100% - 28px));max-height:45%;overflow:auto;background:#102631ed;border:1px solid #34505e;border-radius:8px;color:#b9d3d8}
+.map-info>summary{padding:9px 12px;cursor:pointer}
+.caption{padding:0 12px;font-size:11px;line-height:1.5}
+.map-alert,.fullscreen-status{position:absolute;top:65px;left:14px;right:60px;background:#452d25f2;color:#fff1db;border:1px solid #a47759;border-radius:8px;padding:10px;font-size:12px;z-index:2}
+.fullscreen-status{top:auto;bottom:75px}
+.icon-legend{padding:10px 12px;font-size:12px;border-top:1px solid #28404d}.icon-legend summary{cursor:pointer}.icon-legend div{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}.icon-legend span{display:flex;gap:6px;align-items:center}.icon-legend p{font-size:10px}
+aside{position:relative;min-height:0;padding:20px;overflow-y:auto;overscroll-behavior:contain;background:#112632;border-left:1px solid #28404d}
+aside[hidden]{display:none}.panel-close{float:right;margin-bottom:8px}
+.eyebrow{color:#74dfc3;font-size:10px;font-weight:700;letter-spacing:2px}h2{font-size:28px;margin:12px 0}h3{font-size:16px}p{color:#9bb4bf;line-height:1.6}aside p{font-size:13px}
+.divider{height:1px;background:#28404d;margin:20px 0}.api{display:grid;gap:10px;margin-top:24px;font-size:12px}.api span{color:#9bb4bf}.plane-list{display:grid;gap:7px}.plane-list button{text-align:left}.color-control{display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-top:16px}
+.lookup{margin-top:22px;padding-top:16px;border-top:1px solid #34505e}.lookup form{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.lookup label{display:grid;gap:5px;font-size:12px;max-width:100%}.lookup input,.lookup select{width:100%;background:#142c39;color:white;border:1px solid #49616b;padding:9px;border-radius:6px}.lookup summary{cursor:pointer}.fallback{margin:0 12px 10px}
+@media(max-width:800px){header{padding:8px 10px;min-height:52px;gap:8px}.brand{font-size:14px}.brand small,.badge{display:none}.header-actions{gap:4px}.header-actions button{font-size:11px;padding:8px}.toolbar{padding:8px;gap:6px}.airport-search{max-width:none;flex-basis:calc(100% - 180px);min-width:130px}.map-options{margin-left:0}.workspace.panel-open{grid-template-columns:minmax(0,1fr)}aside{position:absolute;bottom:0;right:0;left:0;max-height:60%;z-index:6;border:1px solid #48616a;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px #0008}.map-shortcuts{left:8px;top:10px;gap:4px}.map-shortcuts button{padding:8px;font-size:11px}.map-info{left:8px;max-width:calc(100% - 16px)}.options-content{left:0;right:auto}.playback{display:none}}
+@media(max-width:420px){.brand{font-size:12px;gap:4px}.header-actions button{font-size:10px;padding:8px 6px}.fullscreen-button{white-space:nowrap}}
+@media(max-width:800px){.toolbar{position:relative}.map-options{position:static}.options-content{left:8px;right:8px;top:100%;width:auto;max-width:none}}

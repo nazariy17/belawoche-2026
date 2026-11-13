@@ -1,14 +1,11 @@
-﻿<main>
+﻿<main #radarShell [class.expanded]="expanded()">
   <header>
     <a class="brand" href="/">✈ <span>Ewan's flight radar<small>BELA-WOCHE 2026</small></span></a>
-    <span class="badge">{{ mode() === 'simulation' ? 'Simulation' : 'Live' }} · {{ aircraftCount() }} Flugzeuge</span>
+    <div class="header-actions"><span class="badge">{{ mode() === 'simulation' ? 'Simulation' : 'Live' }} · {{ aircraftCount() }} Flugzeuge</span>
+    <button (click)="panelOpen.set(!panelOpen())" [attr.aria-expanded]="panelOpen()" aria-controls="details-panel">{{ panelOpen() ? 'Details schließen' : 'Flughafen & Flüge' }}</button>
+    <button class="fullscreen-button" (click)="toggleFullscreen(radarShell)" [attr.aria-pressed]="expanded()">{{ expanded() ? '⤡ Vollbild verlassen' : '⛶ Vollbild' }}</button></div>
   </header>
-  <section class="intro">
-    <p class="eyebrow">ENTDECKE DEN HIMMEL</p>
-    <h1>Was fliegt über uns?</h1>
-    <p>Unser Flugradar beginnt in Zürich. Setze einen Radar-Punkt und erkunde den Umkreis.</p>
-  </section>
-  <section class="workspace" aria-label="Radar-Prototyp">
+  <section class="workspace" [class.panel-open]="panelOpen()" aria-label="Flugradar">
     <div class="map-panel">
       <div class="toolbar">
         <div class="airport-search">
@@ -28,6 +25,7 @@
         <button (click)="restart()">Neustart</button>
         <span class="playback">{{ elapsed() }} / 120 s</span>
         }
+        <details class="map-options"><summary>Ansicht & Einstellungen</summary><div class="options-content">
         <button (click)="placing.set(!placing())" [attr.aria-pressed]="placing()">{{ placing() ? 'Punkt auf der Karte wählen …' : 'Radar hier setzen' }}</button>
         <div class="radii" aria-label="Radar-Radius">
           @for (km of [10, 25, 50]; track km) {
@@ -39,8 +37,17 @@
         <button (click)="airportZoom(16)">Flughafen {{ airport().iata || airport().icao }}</button>
         <button (click)="toggleLights()" [attr.aria-pressed]="lights()">Lichter {{ lights() ? 'an' : 'aus' }}</button>
         <button (click)="toggleApproaches()" [attr.aria-pressed]="approaches()">Anfluglinien {{ approaches() ? 'an' : 'aus' }}</button>
+        </div></details>
       </div>
+      <div class="map-stage">
       <div id="radar-map" aria-label="Interaktive schematische Radarkarte"></div>
+      <div class="map-shortcuts">
+        <button (click)="reset()" title="Zurück zum Radar-Punkt">◎ Radar</button>
+        <button (click)="airportZoom(16)">{{ airport().iata || airport().icao }} · Flughafen</button>
+        <button (click)="airportZoom(13)">Anflug</button>
+      </div>
+      @if (fullscreenStatus()) { <p class="fullscreen-status" role="status">{{ fullscreenStatus() }}</p> }
+      <details class="map-info"><summary>{{ mode() === 'simulation' ? 'Simulation' : 'Live · adsb.lol' }} · {{ aircraftCount() }} Flugzeuge · Karteninfo</summary>
       <p class="caption" role="status">{{ runwayStatus() }}</p>
       <details class="icon-legend">
         <summary>Flugzeugtypen · Symbollegende</summary>
@@ -51,8 +58,8 @@
         </div>
         <p>Flugzeugsymbole nach Typ, sonst ADS-B-Kategorie. Airline-Farben nach Rufzeichen für unterstützte Betreiber; Sonderlackierungen und Wet-Lease können abweichen. Keine amtliche Gewichtsklassifizierung.</p>
       </details>
-      @if (mapError()) { <p role="alert" class="caption">{{ mapError() }}</p> }
-      @if (dataError()) { <p role="alert" class="caption">{{ dataError() }}</p> }
+
+
       @if (mode() === 'live') {
         <p class="caption" [attr.role]="liveError() ? 'alert' : 'status'">{{ liveStatus() }}</p>
         @if (liveUpdateAge() !== null) { <p class="caption">Letzte Antwort vor {{ liveUpdateAge() }} s · Bewegung zwischen gemeldeten Positionen interpoliert.</p> }
@@ -60,8 +67,12 @@
       }
       @if (empty() && mode() === 'simulation') { <p role="status" class="caption">Keine Flugzeuge im gewählten Umkreis. Vergrößere den Radius oder versetze den Radar-Punkt.</p> }
       <p class="caption">{{ mode() === 'simulation' ? 'Synthetische Simulation · keine beobachteten Flüge.' : 'Live-Daten: adsb.lol · ODbL 1.0 · Empfangsabdeckung kann variieren.' }} Beleuchtung illustrativ. Weltkarte und Zürich-Geometrie lokal verfügbar.</p>
+      </details>
+      @if (mapError() || dataError() || (mode() === 'live' && liveError())) { <div class="map-alert" role="alert">{{ mapError() || dataError() || liveStatus() }} @if (liveError()) { <button (click)="setMode('simulation')">Simulation starten</button> }</div> }
+      </div>
     </div>
-    <aside [class.selected-panel]="selected()">
+    <aside id="details-panel" [hidden]="!panelOpen()" [class.selected-panel]="selected()">
+      <button class="panel-close" (click)="panelOpen.set(false)" aria-label="Detailbereich schließen">✕</button>
       @if (selected(); as plane) {
         <button (click)="following.set(!following())" [attr.aria-pressed]="following()">{{ following() ? 'Verfolgen beenden' : 'Flugzeug folgen' }}</button>
         <app-aircraft-card [aircraft]="plane" [center]="center" [now]="clock()" [simulation]="mode() === 'simulation'" (closed)="closeAircraft()" />
@@ -87,8 +98,6 @@
         <button (click)="checkApi()" [disabled]="checking()">{{ checking() ? 'Prüfe …' : 'Verbindung prüfen' }}</button>
       </div>
       }
-    </aside>
-  </section>
   <details class="lookup">
     <summary>Flugzeug weltweit finden · Live-Suche</summary>
     <form (submit)="$event.preventDefault(); lookupAircraft()">
@@ -99,5 +108,7 @@
     <p role="status">{{ lookupStatus() }}</p>
     @for (plane of lookupResults(); track plane.id) { <button (click)="locateAircraft(plane)">{{ plane.callsign }} · {{ plane.registration || 'Unbekannt' }} · Radar hierher versetzen</button> }
   </details>
-  <footer>Flugzeuge verstehen. Die Welt entdecken. <span>BELA-Woche · Ewan</span></footer>
+    </aside>
+  </section>
+
 </main>

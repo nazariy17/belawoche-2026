@@ -57,6 +57,8 @@ After deployment verify `/`, `/api/health`, `/api/capabilities`, `/api/docs` and
 
 ## Implemented and next steps
 
+The main screen uses the full browser viewport for the map, with a compact toolbar and collapsible settings. **Flughafen & Flüge** opens the airport/weather/aircraft panel; selecting a plane opens its details. On phones the panel becomes a scrollable bottom sheet. **Vollbild** enters browser fullscreen and provides an exit button; native Escape exits too. Unsupported devices get an expanded in-page view with an explanatory status. MapLibre resizes when panels, the viewport or fullscreen change. Map credits and the symbol legend remain available on the map.
+
 The radar now includes an attributed world map and local Zürich geometry, runway lighting, airport search, live traffic, worldwide aircraft lookup, aircraft details, weather and official German briefing links. Live traffic refreshes every 30 seconds, interpolates between observations and freezes stale positions. Updates pause in hidden tabs. Select a plane and choose **Flugzeug folgen** to follow it; dragging the map stops following without moving the radar pin.
 
 Aircraft silhouettes distinguish small, medium, large, heavy twin-engine and heavy four-engine aircraft. Additional fallbacks cover helicopters, heavy aircraft with unknown engine count and unknown types. Classification uses an explicit partial ICAO type table, then the reported ADS-B category. These are illustrative visual groups, not official weight classes. The map legend explains the shapes; Simulation includes seven aircraft to preview them.

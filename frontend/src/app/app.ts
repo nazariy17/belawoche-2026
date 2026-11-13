@@ -17,6 +17,29 @@ import { airlineLogo } from './airlines';
 @Component({ selector: 'app-root', imports: [AircraftCard, WeatherCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
   readonly airlineLogo = airlineLogo;
+  readonly panelOpen = signal(false);
+  readonly expanded = signal(false);
+  readonly fullscreenStatus = signal('');
+  private resizeObserver?: ResizeObserver;
+  private fullscreenFallback = false;
+  private readonly fullscreenChanged = () => {
+    this.expanded.set(Boolean(document.fullscreenElement) || this.fullscreenFallback);
+    this.map?.resize();
+  };
+  private readonly fullscreenEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && this.fullscreenFallback) {
+      this.fullscreenFallback = false; this.expanded.set(false); this.fullscreenStatus.set('');
+    }
+  };
+  async toggleFullscreen(element: HTMLElement) {
+    this.fullscreenStatus.set('');
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (this.fullscreenFallback) { this.fullscreenFallback = false; this.expanded.set(false); }
+      else if (document.fullscreenEnabled && element.requestFullscreen) await element.requestFullscreen();
+      else { this.fullscreenFallback = true; this.expanded.set(true); this.fullscreenStatus.set('Erweiterte Ansicht · Browser-Vollbild wird auf diesem Gerät nicht unterstützt.'); }
+    } catch { this.fullscreenStatus.set('Vollbild wurde vom Browser nicht zugelassen.'); }
+  }
   readonly iconLabels = iconLabels;
   readonly iconUrl = iconUrl;
   readonly legendIcons: AircraftIcon[] = ['small', 'medium', 'large', 'heavy-twin', 'heavy-four', 'heavy', 'helicopter', 'unknown'];
@@ -68,6 +91,8 @@ export class App implements AfterViewInit, OnDestroy {
   private current: Aircraft[] = [];
 
   async ngAfterViewInit() {
+    document.addEventListener('fullscreenchange', this.fullscreenChanged);
+    document.addEventListener('keydown', this.fullscreenEscape);
     try {
       this.restorePreferences();
       const [{ Map, NavigationControl, Marker, setWorkerUrl }, { TrafficRenderer }] = await Promise.all([import('maplibre-gl'), import('./traffic-renderer')]);
@@ -75,7 +100,9 @@ export class App implements AfterViewInit, OnDestroy {
       // MapLibre 6's ESM worker and its shared module must be served separately
       // from Angular's bundled chunks, both in ng serve and the Vercel build.
       setWorkerUrl(new URL('maplibre/maplibre-gl-worker.mjs', document.baseURI).href);
-      this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9, style: radarStyle() });
+      this.map = new Map({ container: 'radar-map', center: this.center, zoom: 9, style: radarStyle(), attributionControl: { compact: true } });
+      this.resizeObserver = new ResizeObserver(() => this.map?.resize());
+      this.resizeObserver.observe(document.getElementById('radar-map')!);
       this.map.on('error', event => {
         console.error('Radar map error:', event.error);
         this.dataError.set('Ein Teil der Kartendaten konnte nicht geladen werden. Bitte Internetverbindung prüfen und die Seite neu laden.');
@@ -137,7 +164,7 @@ export class App implements AfterViewInit, OnDestroy {
     this.visibleAircraft.set(visible);
     this.selected.set(visible.find(plane => plane.id === this.selectedId) ?? null);
   }
-  selectAircraft(id: string) { this.selectedId = id; this.renderTraffic(); }
+  selectAircraft(id: string) { this.selectedId = id; this.panelOpen.set(true); this.renderTraffic(); }
   closeAircraft() { this.selectedId = null; this.selected.set(null); this.following.set(false); }
   restart() { if (this.replay) this.playbackTime = this.replay.start; this.playing.set(true); }
   moveRadar(point: Point) { this.center = [((point[0] + 540) % 360) - 180, Math.max(-85, Math.min(85, point[1]))]; this.pin?.setLngLat(this.center); this.placing.set(false); this.updateRing(); if (this.mode() === 'live') this.live.start(this.center, this.radius()); }
@@ -275,5 +302,5 @@ export class App implements AfterViewInit, OnDestroy {
     } catch { this.apiStatus.set('Nicht erreichbar · Simulation bleibt verfügbar'); }
     finally { this.checking.set(false); }
   }
-  ngOnDestroy() { this.destroyed = true; this.lookupController?.abort(); this.live.destroy(); cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
+  ngOnDestroy() { this.destroyed = true; this.resizeObserver?.disconnect(); document.removeEventListener('fullscreenchange', this.fullscreenChanged); document.removeEventListener('keydown', this.fullscreenEscape); this.lookupController?.abort(); this.live.destroy(); cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
 }
