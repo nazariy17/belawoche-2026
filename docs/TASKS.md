@@ -10,7 +10,7 @@ Each completed task is validated and pushed separately. Deployment and external 
 - [x] 6. Airport search (48,070 large/medium/small airports) and persistent radius, radar colour and opening airport.
 - [x] 7. Cached live traffic, distinct failures, rate-limit backoff and explicit simulation fallback. Cache is process-local (see PROVIDERS.md).
 - [x] 8. Verified worldwide callsign and registration lookup, separated from radius filtering, with explicit move-to-result action.
-- [ ] 9. Routes and photos (route publication permission unresolved; silhouette fallback required).
+- [ ] 9. Routes and photos: registration-matched Commons photos implemented with attribution and missing-photo fallback; route publication permission remains unresolved.
 - [x] 10. On-demand METAR (station/time/wind/visibility/raw report), no-report/error states and official DFS notices link for German airports.
 - [ ] 11. Automated/browser checks and Vercel deployment; phone/second-network acceptance remains a manual check.
 

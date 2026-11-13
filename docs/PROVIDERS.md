@@ -12,7 +12,15 @@ Cache/cooldown is bounded and per warm Python process. Vercel cold starts and mu
 
 Worldwide traffic lookup was tested with a positioned aircraft: `/v2/callsign/T7437` and `/v2/reg/T7-437` both returned the same aircraft identifier. A nonexistent callsign returned HTTP 200 and an empty aircraft array. These endpoints search tracked observations, not a complete registration database; missing/unpositioned aircraft are not shown as located.
 
-https://github.com/mrjackwills/adsbdb states that route data may not be copied, published or incorporated into other databases without explicit permission from David J Taylor. No route data is bundled or published; capabilities.routes remains false. Source-code MIT licensing is not permission for the route database. Aircraft photos from the API also need individual publication permission. The UI uses an original silhouette instead.
+https://github.com/mrjackwills/adsbdb states that route data may not be copied, published or incorporated into other databases without explicit permission from David J Taylor. No route data is bundled or published; capabilities.routes remains false. Source-code MIT licensing is not permission for the route database. No photos from that API are used.
+
+## Photos: Wikimedia Commons
+
+The same-origin `/api/aircraft/photo?registration=HB-JCA` endpoint searches Commons file titles for the registration, checks an exact registration boundary, and returns a thumbnail only with supported Creative Commons license metadata, author and source-page links. HB-JCA was verified against the live API. Image metadata is cached for one day per warm process; image files are served directly by Wikimedia. Missing photos and provider errors are distinct, and the client cancels obsolete requests when selection changes. No lookup runs for synthetic traffic.
+
+Attribution appears beside each image. Photos are displayed without cropping and labelled as archive images: registration matching cannot guarantee the current livery or airframe after a registration is reused. Coverage is not guaranteed. Metadata HTML is converted to plain text; image/source/license URLs use fixed approved HTTPS hosts.
+
+References: [Commons reuse guidance](https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia), [Imageinfo API](https://www.mediawiki.org/wiki/API:Imageinfo). Each file's source page and license govern reuse.
 
 ## Maps
 

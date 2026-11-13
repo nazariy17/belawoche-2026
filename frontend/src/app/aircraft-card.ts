@@ -3,9 +3,10 @@ import { DecimalPipe } from '@angular/common';
 import { bearing, distanceKm, type Point } from './geo';
 import type { Aircraft } from './traffic';
 import { aircraftIcon, iconLabels, iconUrl } from './aircraft-icons';
+import { AircraftPhoto } from './aircraft-photo';
 
 @Component({
-  selector: 'app-aircraft-card', imports: [DecimalPipe],
+  selector: 'app-aircraft-card', imports: [DecimalPipe, AircraftPhoto],
   template: `
     <button class="close" (click)="closed.emit()" aria-label="Flugzeugdetails schließen">✕</button>
     <p class="eyebrow">{{ simulation() ? 'SIMULATION' : 'BEOBACHTETES FLUGZEUG' }}</p>
@@ -13,7 +14,7 @@ import { aircraftIcon, iconLabels, iconUrl } from './aircraft-icons';
     <p>{{ aircraft().airline || 'Airline unbekannt' }} · {{ aircraft().operator || '—' }}</p>
     <div class="silhouette"><img [src]="iconUrl(icon())" [alt]="iconLabels[icon()] + ' · Silhouette, kein Foto'" width="84" height="84" /></div>
     <p>{{ iconLabels[icon()] }}</p>
-    <p class="muted">Kein lizenziertes Foto verfügbar</p>
+    <app-aircraft-photo [registration]="aircraft().registration" [simulation]="simulation()" />
     <dl>
       <dt>Registrierung</dt><dd>{{ aircraft().registration || 'Unbekannt' }}</dd>
       <dt>Flugzeugtyp</dt><dd>{{ aircraft().aircraftType || 'Unbekannt' }}</dd>

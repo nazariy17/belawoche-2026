@@ -47,7 +47,7 @@ async def cached_json(url: str, ttl: int = 30):
     async with LOCK:
         now = time.monotonic()
         host = httpx.URL(url).host
-        if host not in ('api.adsb.lol', 'aviationweather.gov'):
+        if host not in ('api.adsb.lol', 'aviationweather.gov', 'commons.wikimedia.org'):
             raise ValueError('Unapproved upstream')
         if url in CACHE and CACHE[url][0] > now:
             CACHE.move_to_end(url)
@@ -55,7 +55,7 @@ async def cached_json(url: str, ttl: int = 30):
         remaining = COOLDOWNS.get(host, 0) - now
         if remaining > 0:
             raise HTTPException(429, 'Provider rate limit', headers={'Retry-After': str(math.ceil(remaining))})
-        headers = {'User-Agent': 'EwanFlightRadar/0.1 (educational demo)'}
+        headers = {'User-Agent': 'EwanFlightRadar/0.1 (+https://github.com/nazariy17/belawoche-2026)'}
         if host == 'api.adsb.lol' and os.getenv('ADSB_LOL_API_KEY'):
             headers['x-api-key'] = os.environ['ADSB_LOL_API_KEY']
         try:
