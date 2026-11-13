@@ -6,7 +6,7 @@ Each completed task is validated and pushed separately. Deployment and external 
 - [x] 2. Airport lighting and zoom-dependent light points; toggle preserves runway pavement/outline.
 - [x] 3. Timestamped animated offline simulation with pause/restart, shortest-angle interpolation and stale-position freeze; four synthetic aircraft.
 - [x] 4. Aircraft silhouettes, direction, altitude and operator badges.
-- [ ] 5. Aircraft detail panel and mobile layout.
+- [x] 5. Aircraft detail panel, unit conversions, observation age, distance/bearing and mobile bottom sheet; accessible aircraft list.
 - [ ] 6. Airport search and persistent settings.
 - [ ] 7. Cached live traffic, failures and replay fallback.
 - [ ] 8. Verified worldwide aircraft lookup.

@@ -31,18 +31,27 @@
       @if (empty()) { <p role="status" class="caption">Keine Flugzeuge im gewählten Umkreis. Vergrößere den Radius oder versetze den Radar-Punkt.</p> }
       <p class="caption">Simulation · keine Live-Daten. Beleuchtung illustrativ. Weltkarte und Zürich-Geometrie lokal verfügbar; Straßendetails benötigen Internet.</p>
     </div>
-    <aside>
+    <aside [class.selected-panel]="selected()">
+      @if (selected(); as plane) {
+        <app-aircraft-card [aircraft]="plane" [center]="center" [now]="clock()" (closed)="closeAircraft()" />
+      } @else {
       <p class="eyebrow">{{ selected() ? 'FLUGZEUG' : 'UNSER STARTPUNKT' }}</p>
       <h2>{{ selected()?.callsign || 'Zürich' }}</h2>
       <p>{{ selected() ? 'Fiktives Flugzeug für den ersten Klicktest. Route, Airline und Registrierung sind noch nicht hinterlegt.' : 'ZRH / LSZH · Schweiz' }}</p>
       <div class="divider"></div>
       <h3>Ein Projekt von Ewan</h3>
-      <p>Als Nächstes: bewegte Flugzeuge, beleuchtete Landebahnen und echte Flugdaten.</p>
+      <p>Wähle ein Flugzeug auf der Karte oder in dieser Liste.</p>
+      <div class="plane-list">
+        @for (plane of visibleAircraft(); track plane.id) {
+          <button (click)="selectAircraft(plane.id)">{{ plane.operator || '?' }} · {{ plane.callsign }}</button>
+        }
+      </div>
       <div class="api">
         <span>Backend</span>
         <strong role="status">{{ apiStatus() }}</strong>
         <button (click)="checkApi()" [disabled]="checking()">{{ checking() ? 'Prüfe …' : 'Verbindung prüfen' }}</button>
       </div>
+      }
     </aside>
   </section>
   <footer>Flugzeuge verstehen. Die Welt entdecken. <span>BELA-Woche · Ewan</span></footer>

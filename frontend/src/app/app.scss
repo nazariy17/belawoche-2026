@@ -24,5 +24,8 @@ aside p { font-size: 14px; }
 .divider { height: 1px; background: #28404d; margin: 28px 0; }
 .api { display: grid; gap: 12px; margin-top: 28px; font-size: 12px; }
 .api span { color: #9bb4bf; }
+.plane-list { display: grid; gap: 8px; }
+.playback { align-self: center; color: #9bb4bf; font-size: 12px; }
+@media (max-width: 800px) { aside.selected-panel { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; max-height: 65dvh; overflow-y: auto; border-radius: 20px 20px 0 0; box-shadow: 0 -10px 40px #0009; } }
 footer { display: flex; justify-content: space-between; gap: 1rem; padding: 24px 0; color: #809aa8; font-size: 12px; }
 @media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } aside { border-left: 0; border-top: 1px solid #28404d; } header, footer { flex-wrap: wrap; } #radar-map { height: 360px; } }

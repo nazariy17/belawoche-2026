@@ -6,8 +6,9 @@ import { addAirportLights, setLights } from './airport-lights';
 import { distanceKm, type Point } from './geo';
 import { replayAt, type Aircraft, type Replay } from './traffic';
 import type { TrafficRenderer } from './traffic-renderer';
+import { AircraftCard } from './aircraft-card';
 
-@Component({ selector: 'app-root', templateUrl: './app.html', styleUrl: './app.scss' })
+@Component({ selector: 'app-root', imports: [AircraftCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
   readonly radius = signal(25);
   readonly lights = signal(true);
@@ -21,6 +22,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly playing = signal(true);
   readonly elapsed = signal(0);
   readonly aircraftCount = signal(0);
+  readonly visibleAircraft = signal<Aircraft[]>([]);
+  readonly clock = signal(0);
   protected map?: Map;
   protected center: Point = [8.555, 47.458];
   private pin?: Marker;
@@ -68,6 +71,7 @@ export class App implements AfterViewInit, OnDestroy {
       if (this.playbackTime === this.replay.end) this.playing.set(false);
       this.elapsed.set(Math.floor((this.playbackTime - this.replay.start) / 1000));
       this.current = replayAt(this.replay, this.playbackTime);
+      this.clock.set(this.playbackTime);
       this.renderTraffic();
     }
     if (!this.destroyed) this.frame = requestAnimationFrame(next => this.animate(next));
@@ -77,6 +81,7 @@ export class App implements AfterViewInit, OnDestroy {
     this.renderer?.update(visible);
     this.empty.set(visible.length === 0);
     this.aircraftCount.set(visible.length);
+    this.visibleAircraft.set(visible);
     this.selected.set(visible.find(plane => plane.id === this.selectedId) ?? null);
   }
   selectAircraft(id: string) { this.selectedId = id; this.renderTraffic(); }
