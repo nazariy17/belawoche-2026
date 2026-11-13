@@ -35,7 +35,8 @@ export class TrafficRenderer {
       const angle = plane.heading ?? plane.track;
       item.icon.style.transform = `rotate(${angle ?? 0}deg)`;
       item.icon.style.opacity = plane.stale ? '0.45' : '1';
-      item.badge.textContent = plane.operator ?? '?';
+      item.badge.textContent = plane.operator ?? '—';
+      item.badge.title = plane.airline ?? (plane.operator ? `ICAO-Rufzeichen: ${plane.operator}` : 'Betreiber nicht gemeldet');
       item.badge.style.background = operatorColors[plane.operator ?? ''] ?? '#536571';
       const direction = angle === null ? 'Richtung unbekannt' : `${plane.heading !== null ? 'Steuerkurs' : 'Flugrichtung'} ${Math.round(angle)}°`;
       item.text.textContent = `${plane.callsign} · ${plane.aircraftType || '?'}\n${direction} · ${plane.altitudeFt === null ? 'Höhe unbekannt' : Math.round(plane.altitudeFt) + ' ft'}${plane.stale ? ' · veraltet' : ''}`;

@@ -2,6 +2,7 @@
 import asyncio
 import math
 import os
+import re
 import time
 from collections import OrderedDict
 
@@ -11,7 +12,34 @@ from fastapi import HTTPException
 CACHE: OrderedDict = OrderedDict()
 LOCK = asyncio.Lock()
 COOLDOWNS: dict[str, float] = {}
-AIRLINES = {'SWR': 'SWISS', 'DLH': 'Lufthansa', 'EZY': 'easyJet', 'BAW': 'British Airways', 'UAE': 'Emirates'}
+AIRLINES = {
+    'SWR': 'SWISS', 'DLH': 'Lufthansa', 'EZY': 'easyJet', 'EJU': 'easyJet Europe',
+    'EZS': 'easyJet Switzerland', 'EDW': 'Edelweiss', 'BAW': 'British Airways',
+    'UAE': 'Emirates', 'AUA': 'Austrian Airlines', 'BEL': 'Brussels Airlines',
+    'AFR': 'Air France', 'KLM': 'KLM', 'ITY': 'ITA Airways', 'VLG': 'Vueling',
+    'IBE': 'Iberia', 'RYR': 'Ryanair', 'WZZ': 'Wizz Air', 'WMT': 'Wizz Air Malta',
+    'WUK': 'Wizz Air UK', 'THY': 'Turkish Airlines', 'PGT': 'Pegasus Airlines',
+    'SXS': 'SunExpress', 'AEE': 'Aegean Airlines', 'FIN': 'Finnair', 'SAS': 'SAS',
+    'LOT': 'LOT Polish Airlines', 'TAP': 'TAP Air Portugal', 'VIR': 'Virgin Atlantic',
+    'EIN': 'Aer Lingus', 'ICE': 'Icelandair', 'ETD': 'Etihad Airways',
+    'QTR': 'Qatar Airways', 'SVA': 'Saudia', 'OMA': 'Oman Air', 'GFA': 'Gulf Air',
+    'AAL': 'American Airlines', 'UAL': 'United Airlines', 'DAL': 'Delta Air Lines',
+    'ACA': 'Air Canada', 'WJA': 'WestJet', 'JBU': 'JetBlue', 'SWA': 'Southwest Airlines',
+    'ASA': 'Alaska Airlines', 'FDX': 'FedEx', 'UPS': 'UPS Airlines',
+    'CCA': 'Air China', 'CES': 'China Eastern', 'CSN': 'China Southern',
+    'CPA': 'Cathay Pacific', 'SIA': 'Singapore Airlines', 'ANA': 'All Nippon Airways',
+    'JAL': 'Japan Airlines', 'KAL': 'Korean Air', 'THA': 'Thai Airways',
+    'EVA': 'EVA Air', 'CAL': 'China Airlines', 'QFA': 'Qantas', 'ANZ': 'Air New Zealand',
+    'ETH': 'Ethiopian Airlines', 'RAM': 'Royal Air Maroc', 'MSR': 'EgyptAir',
+}
+
+
+def operator_code(flight, registration):
+    callsign = str(flight or '').strip().upper()
+    if callsign.replace('-', '') == str(registration or '').upper().replace('-', ''):
+        return None
+    # Preserve unlisted ICAO prefixes, but do not interpret registrations/hex IDs as airlines.
+    return callsign[:3] if re.fullmatch(r'[A-Z]{3}[0-9][A-Z0-9]*', callsign) else None
 
 
 async def cached_json(url: str, ttl: int = 30):
@@ -76,10 +104,10 @@ def normalize(data):
         if lat is None or lon is None or seen is None or not (-90 <= lat <= 90 and -180 <= lon <= 180) or not item.get('hex'):
             continue
         callsign = str(item.get('flight') or item['hex']).strip()
-        prefix = callsign[:3]
+        prefix = operator_code(item.get('flight'), item.get('r'))
         heading = number(item.get('true_heading'))  # Do not confuse magnetic heading with true heading.
         aircraft.append(dict(id=str(item['hex']), callsign=callsign, registration=item.get('r'),
-            airline=AIRLINES.get(prefix), operator=prefix if prefix in AIRLINES else None,
+            airline=AIRLINES.get(prefix), operator=prefix,
             aircraftType=item.get('t'), category=item.get('category'), lon=lon, lat=lat,
             altitudeFt=0 if item.get('alt_baro') == 'ground' else number(item.get('alt_baro')),
             speedKt=number(item.get('gs')), track=number(item.get('track')), heading=heading,
