@@ -47,7 +47,7 @@ async def cached_json(url: str, ttl: int = 30):
     async with LOCK:
         now = time.monotonic()
         host = httpx.URL(url).host
-        if host not in ('api.adsb.lol', 'aviationweather.gov', 'commons.wikimedia.org'):
+        if host not in ('api.adsb.lol', 'aviationweather.gov', 'commons.wikimedia.org', 'api.aviationstack.com'):
             raise ValueError('Unapproved upstream')
         if url in CACHE and CACHE[url][0] > now:
             CACHE.move_to_end(url)

@@ -4,13 +4,16 @@ import { bearing, distanceKm, type Point } from './geo';
 import type { Aircraft } from './traffic';
 import { aircraftIcon, iconLabels, iconUrl } from './aircraft-icons';
 import { AircraftPhoto } from './aircraft-photo';
+import { airlineLogo } from './airlines';
+import { AircraftRoute } from './aircraft-route';
 
 @Component({
-  selector: 'app-aircraft-card', imports: [DecimalPipe, AircraftPhoto],
+  selector: 'app-aircraft-card', imports: [DecimalPipe, AircraftPhoto, AircraftRoute],
   template: `
     <button class="close" (click)="closed.emit()" aria-label="Flugzeugdetails schließen">✕</button>
     <p class="eyebrow">{{ simulation() ? 'SIMULATION' : 'BEOBACHTETES FLUGZEUG' }}</p>
     <h2>{{ aircraft().callsign }}</h2>
+    @if (airlineLogo(aircraft().operator); as logo) { <img [src]="logo" [alt]="aircraft().airline || aircraft().operator || 'Airline'" style="width:110px;height:40px;object-fit:contain;background:white;border-radius:6px;padding:5px" /> }
     <p>{{ aircraft().airline || 'Airline unbekannt' }} · {{ aircraft().operator || '—' }}</p>
     <div class="silhouette"><img [src]="iconUrl(icon())" [alt]="iconLabels[icon()] + ' · Silhouette, kein Foto'" width="84" height="84" /></div>
     <p>{{ iconLabels[icon()] }}</p>
@@ -25,11 +28,12 @@ import { AircraftPhoto } from './aircraft-photo';
       <dt>Vom Radar-Punkt</dt><dd>{{ distance() | number:'1.1-1' }} km · {{ direction() | number:'1.0-0' }}°</dd>
       <dt>Letzte Position</dt><dd>{{ age() }} s {{ simulation() ? '(Simulationszeit)' : 'alt' }} @if (aircraft().stale) { <strong> · Veraltet, Bewegung angehalten</strong> }</dd>
     </dl>
-    <div class="route"><strong>Route unbekannt</strong><p>Start und Ziel werden nicht aus der beobachteten Flugspur abgeleitet.</p></div>
+    <app-aircraft-route [callsign]="aircraft().callsign" [registration]="aircraft().registration" [simulation]="simulation()" />
   `,
   styles: `:host{display:block;position:relative}.close{float:right;border:1px solid #4c686f;border-radius:6px;background:#19343c;color:white;padding:8px;cursor:pointer}.eyebrow{font-size:10px;letter-spacing:2px;color:#74dfc3}h2{margin:12px 0;font-size:26px}p{color:#acc1c9;font-size:13px;line-height:1.5}.silhouette{text-align:center;font-size:64px;color:#91b5bd;background:#17303b;border-radius:12px}.muted{font-size:11px}dl{display:grid;grid-template-columns:1fr 1fr;gap:12px 8px;font-size:12px}dt{color:#9bb4bf}dd{margin:0;text-align:right}small{display:block;color:#9bb4bf;margin-top:4px}.route{border-top:1px solid #36515b;padding-top:16px;margin-top:20px;font-size:13px}`,
 })
 export class AircraftCard {
+  readonly airlineLogo = airlineLogo;
   readonly iconLabels = iconLabels;
   readonly iconUrl = iconUrl;
   aircraft = input.required<Aircraft>();

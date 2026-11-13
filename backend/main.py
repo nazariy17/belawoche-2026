@@ -4,6 +4,7 @@ from typing import Literal
 from fastapi import FastAPI, Query, HTTPException
 from providers import traffic, cached_json, normalize, weather
 from photos import aircraft_photo
+from routes import aircraft_route
 
 app = FastAPI(
     title="Ewan's flight radar",
@@ -53,3 +54,8 @@ async def get_weather(icao: str = Query(pattern=r'^[A-Za-z]{4}$')):
 @app.get('/api/aircraft/photo')
 async def get_aircraft_photo(registration: str = Query(min_length=3, max_length=12, pattern=r'^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)?$')):
     return await aircraft_photo(registration.upper())
+
+
+@app.get('/api/aircraft/route')
+async def get_aircraft_route(callsign: str = Query(pattern=r'^[A-Za-z]{3}[0-9][A-Za-z0-9]{0,8}$'), registration: str = Query(default='', max_length=12, pattern=r'^[A-Za-z0-9-]*$')):
+    return await aircraft_route(callsign.upper(), registration.upper())
