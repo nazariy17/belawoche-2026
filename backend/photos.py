@@ -40,6 +40,15 @@ def select_photo(data, registration):
             metadata = info.get('extmetadata', {})
             def field(name):
                 return metadata.get(name, {}).get('value', '')
+            # A registration alone also matches cabin views, meals and scenery.
+            # Require an aircraft description and reject known non-exterior subjects.
+            description = plain(field('ImageDescription'))
+            categories = plain(field('Categories'))
+            subject = f'{title} {description} {categories}'.lower()
+            excluded = r'\b(interior|cabin|cockpit|flight deck|seat|seats|meal|food|lavatory|toilet|lounge|terminal|boarding pass|safety card|wing view|view from|through the window|aus dem fenster|kabine|innenraum|bordverpflegung)\b'
+            aircraft_subject = r'\b(airbus|boeing|embraer|bombardier|cessna|piper|pilatus|gulfstream|dassault|fokker|atr|de havilland|aircraft|airplane|aeroplane|flugzeug)\b'
+            if re.search(excluded, subject) or not re.search(aircraft_subject, f'{title} {description}'.lower()):
+                continue
             license_code = field('License').lower()
             if not (license_code.startswith(('cc-by-', 'cc-by-sa-')) or license_code in ('cc0', 'pd')):
                 continue
@@ -57,8 +66,8 @@ def select_photo(data, registration):
 
 
 async def aircraft_photo(registration):
-    query = urlencode(dict(action='query', generator='search', gsrsearch=f'intitle:{registration} filetype:bitmap',
-                           gsrnamespace=6, gsrlimit=5, prop='imageinfo', iiprop='url|extmetadata',
+    query = urlencode(dict(action='query', generator='search', gsrsearch=f'intitle:{registration} filetype:bitmap -intitle:interior -intitle:cabin -intitle:cockpit',
+                           gsrnamespace=6, gsrlimit=10, prop='imageinfo', iiprop='url|extmetadata',
                            iiurlwidth=600, format='json'))
     data = await cached_json('https://commons.wikimedia.org/w/api.php?' + query, ttl=86400)
     return {'registration': registration, 'photo': select_photo(data, registration)}

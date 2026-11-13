@@ -7,7 +7,7 @@ from main import app
 from photos import select_photo, aircraft_photo
 
 
-def sample(title='File:HB-JCA at Zurich.jpg'):
+def sample(title='File:Bombardier CS300 HB-JCA at Zurich.jpg'):
     info = {'thumburl': 'https://upload.wikimedia.org/photo.jpg',
             'descriptionurl': 'https://commons.wikimedia.org/wiki/File:HB-JCA.jpg',
             'extmetadata': {key: {'value': value} for key, value in {
@@ -51,3 +51,15 @@ def test_provider_failure_is_not_a_missing_photo():
         with pytest.raises(HTTPException) as error:
             asyncio.run(aircraft_photo('HB-JCA'))
     assert error.value.status_code == 504
+
+
+@pytest.mark.parametrize('title', ['File:HB-JCA Zurich skyline.jpg', 'File:Airbus HB-JCA cabin.jpg', 'File:Airbus HB-JCA view from window.jpg', 'File:HB-JCA Boeing cockpit.jpg'])
+def test_reject_scenery_and_aircraft_interiors(title):
+    assert select_photo(sample(title), 'HB-JCA') is None
+
+
+def test_reject_interior_metadata_even_with_exterior_sounding_title():
+    data = sample()
+    data['query']['pages']['1']['imageinfo'][0]['extmetadata']['Categories'] = {'value': 'Aircraft interiors'}
+    data['query']['pages']['1']['imageinfo'][0]['extmetadata']['ImageDescription'] = {'value': 'Passenger cabin'}
+    assert select_photo(data, 'HB-JCA') is None
