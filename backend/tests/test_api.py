@@ -12,6 +12,7 @@ def test_health_and_public_docs():
 
 def test_unimplemented_providers_are_not_advertised():
     capabilities = client.get("/api/capabilities").json()
-    for feature in ("liveTraffic", "callsignSearch", "registrationSearch", "routes", "weather"):
+    assert capabilities['liveTraffic'] is True
+    for feature in ("callsignSearch", "registrationSearch", "routes", "weather"):
         assert capabilities[feature] is False
     assert client.get("/api/unknown").status_code == 404

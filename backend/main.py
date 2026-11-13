@@ -1,6 +1,8 @@
 """Same-origin API. Provider integrations belong here, never in the browser."""
 
-from fastapi import FastAPI
+from typing import Literal
+from fastapi import FastAPI, Query
+from providers import traffic
 
 app = FastAPI(
     title="Ewan's flight radar",
@@ -20,10 +22,15 @@ def health() -> dict[str, str]:
 def capabilities() -> dict:
     """Only advertise features actually implemented and verified."""
     return {
-        "liveTraffic": False,
+        "liveTraffic": True,
         "callsignSearch": False,
         "registrationSearch": False,
         "routes": False,
         "weather": False,
         "demoAirport": {"icao": "LSZH", "name": "Zürich", "lat": 47.458, "lon": 8.555},
     }
+
+
+@app.get('/api/traffic')
+async def get_traffic(lat: float = Query(ge=-85, le=85), lon: float = Query(ge=-180, le=180), radius: Literal[10, 25, 50] = 25):
+    return await traffic(lat, lon, radius)

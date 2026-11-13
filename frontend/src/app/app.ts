@@ -8,6 +8,7 @@ import { replayAt, type Aircraft, type Replay } from './traffic';
 import type { TrafficRenderer } from './traffic-renderer';
 import { AircraftCard } from './aircraft-card';
 import { airportMatches, zurich, type Airport } from './airports';
+import { LiveTraffic } from './live-traffic';
 
 @Component({ selector: 'app-root', imports: [AircraftCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
@@ -31,6 +32,10 @@ export class App implements AfterViewInit, OnDestroy {
   readonly searchStatus = signal('');
   readonly accent = signal('#5ae2c4');
   readonly preferenceStatus = signal('');
+  readonly mode = signal<'simulation' | 'live'>('simulation');
+  readonly liveStatus = signal('');
+  readonly liveError = signal(false);
+  private live = new LiveTraffic((message, error) => { this.liveStatus.set(message); this.liveError.set(error); });
   private airports?: Airport[];
   private airportLoad?: Promise<Airport[]>;
   protected map?: Map;
@@ -76,13 +81,16 @@ export class App implements AfterViewInit, OnDestroy {
   private animate(time: number) {
     const delta = this.lastFrame ? Math.min(time - this.lastFrame, 250) : 0;
     this.lastFrame = time;
-    if (this.replay) {
+    if (this.replay && this.mode() === 'simulation') {
       if (this.playing() && !document.hidden) this.playbackTime = Math.min(this.replay.end, this.playbackTime + delta);
       if (this.playbackTime === this.replay.end) this.playing.set(false);
       this.elapsed.set(Math.floor((this.playbackTime - this.replay.start) / 1000));
       this.current = replayAt(this.replay, this.playbackTime);
       this.clock.set(this.playbackTime);
       this.renderTraffic();
+    }
+    if (this.mode() === 'live') {
+      this.clock.set(Date.now()); this.current = this.live.at(this.clock()); this.renderTraffic();
     }
     if (!this.destroyed) this.frame = requestAnimationFrame(next => this.animate(next));
   }
@@ -97,8 +105,13 @@ export class App implements AfterViewInit, OnDestroy {
   selectAircraft(id: string) { this.selectedId = id; this.renderTraffic(); }
   closeAircraft() { this.selectedId = null; this.selected.set(null); }
   restart() { if (this.replay) this.playbackTime = this.replay.start; this.playing.set(true); }
-  moveRadar(point: Point) { this.center = point; this.pin?.setLngLat(point); this.placing.set(false); this.updateRing(); }
-  setRadius(radius: number) { this.radius.set(radius); this.updateRing(); this.savePreferences(); }
+  moveRadar(point: Point) { this.center = [((point[0] + 540) % 360) - 180, Math.max(-85, Math.min(85, point[1]))]; this.pin?.setLngLat(this.center); this.placing.set(false); this.updateRing(); if (this.mode() === 'live') this.live.start(this.center, this.radius()); }
+  setRadius(radius: number) { this.radius.set(radius); this.updateRing(); this.savePreferences(); if (this.mode() === 'live') this.live.start(this.center, radius); }
+  setMode(mode: 'simulation' | 'live') {
+    this.mode.set(mode); this.closeAircraft(); this.current = []; this.renderTraffic();
+    if (mode === 'live') this.live.start(this.center, this.radius());
+    else { this.live.stop(); this.chooseAirport(zurich); this.restart(); }
+  }
   reset() { this.map?.flyTo({ center: this.center, zoom: 9 }); }
   airportZoom(zoom: number) { this.map?.flyTo({ center: [8.555, 47.458], zoom }); }
   toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
@@ -165,5 +178,5 @@ export class App implements AfterViewInit, OnDestroy {
     } catch { this.apiStatus.set('Nicht erreichbar · Simulation bleibt verfügbar'); }
     finally { this.checking.set(false); }
   }
-  ngOnDestroy() { this.destroyed = true; cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
+  ngOnDestroy() { this.destroyed = true; this.live.destroy(); cancelAnimationFrame(this.frame); this.renderer?.destroy(); this.pin?.remove(); this.map?.remove(); }
 }

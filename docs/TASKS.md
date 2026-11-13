@@ -8,7 +8,7 @@ Each completed task is validated and pushed separately. Deployment and external 
 - [x] 4. Aircraft silhouettes, direction, altitude and operator badges.
 - [x] 5. Aircraft detail panel, unit conversions, observation age, distance/bearing and mobile bottom sheet; accessible aircraft list.
 - [x] 6. Airport search (48,070 large/medium/small airports) and persistent radius, radar colour and opening airport.
-- [ ] 7. Cached live traffic, failures and replay fallback.
+- [x] 7. Cached live traffic, distinct failures, rate-limit backoff and explicit simulation fallback. Cache is process-local (see PROVIDERS.md).
 - [ ] 8. Verified worldwide aircraft lookup.
 - [ ] 9. Routes and photos (route publication permission unresolved; silhouette fallback required).
 - [ ] 10. METAR and official notices links.

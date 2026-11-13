@@ -3,14 +3,14 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["main"]
+py-modules = ["main", "providers"]
 
 [project]
 name = "belawoche-backend"
 version = "0.1.0"
 description = "Ewan's flight radar API"
 requires-python = ">=3.12,<3.15"
-dependencies = ["fastapi>=0.117.1,<1", "uvicorn>=0.35,<1"]
+dependencies = ["fastapi>=0.117.1,<1", "uvicorn>=0.35,<1", "httpx>=0.28,<1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "httpx>=0.28,<1"]

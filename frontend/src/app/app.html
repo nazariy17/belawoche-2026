@@ -1,7 +1,7 @@
 ﻿<main>
   <header>
     <a class="brand" href="/">✈ <span>Ewan's flight radar<small>BELA-WOCHE 2026</small></span></a>
-    <span class="badge">Simulation · {{ aircraftCount() }} Flugzeuge</span>
+    <span class="badge">{{ mode() === 'simulation' ? 'Simulation' : 'Live' }} · {{ aircraftCount() }} Flugzeuge</span>
   </header>
   <section class="intro">
     <p class="eyebrow">ENTDECKE DEN HIMMEL</p>
@@ -21,9 +21,13 @@
           </div>
           @if (searchStatus()) { <p role="status">{{ searchStatus() }}</p> }
         </div>
+        <button (click)="setMode('simulation')" [attr.aria-pressed]="mode() === 'simulation'">Simulation</button>
+        <button (click)="setMode('live')" [attr.aria-pressed]="mode() === 'live'">Live</button>
+        @if (mode() === 'simulation') {
         <button (click)="playing.set(!playing())">{{ playing() ? 'Pause' : 'Abspielen' }}</button>
         <button (click)="restart()">Neustart</button>
         <span class="playback">{{ elapsed() }} / 120 s</span>
+        }
         <button (click)="placing.set(!placing())" [attr.aria-pressed]="placing()">{{ placing() ? 'Punkt auf der Karte wählen …' : 'Radar hier setzen' }}</button>
         <div class="radii" aria-label="Radar-Radius">
           @for (km of [10, 25, 50]; track km) {
@@ -38,12 +42,13 @@
       <div id="radar-map" aria-label="Interaktive schematische Radarkarte"></div>
       @if (mapError()) { <p role="alert">Die Karte benötigt einen Browser mit WebGL-Unterstützung.</p> }
       @if (dataError()) { <p role="alert" class="caption">{{ dataError() }}</p> }
-      @if (empty()) { <p role="status" class="caption">Keine Flugzeuge im gewählten Umkreis. Vergrößere den Radius oder versetze den Radar-Punkt.</p> }
-      <p class="caption">Simulation · keine Live-Daten. Beleuchtung illustrativ. Weltkarte und Zürich-Geometrie lokal verfügbar; Straßendetails benötigen Internet.</p>
+      @if (mode() === 'live') { <p class="caption" [attr.role]="liveError() ? 'alert' : 'status'">{{ liveStatus() }}</p> }
+      @if (empty() && mode() === 'simulation') { <p role="status" class="caption">Keine Flugzeuge im gewählten Umkreis. Vergrößere den Radius oder versetze den Radar-Punkt.</p> }
+      <p class="caption">{{ mode() === 'simulation' ? 'Synthetische Simulation · keine beobachteten Flüge.' : 'Live-Daten: adsb.lol · ODbL 1.0 · Empfangsabdeckung kann variieren.' }} Beleuchtung illustrativ. Weltkarte und Zürich-Geometrie lokal verfügbar.</p>
     </div>
     <aside [class.selected-panel]="selected()">
       @if (selected(); as plane) {
-        <app-aircraft-card [aircraft]="plane" [center]="center" [now]="clock()" (closed)="closeAircraft()" />
+        <app-aircraft-card [aircraft]="plane" [center]="center" [now]="clock()" [simulation]="mode() === 'simulation'" (closed)="closeAircraft()" />
       } @else {
       <p class="eyebrow">{{ selected() ? 'FLUGZEUG' : 'UNSER STARTPUNKT' }}</p>
       <h2>{{ airport().city || airport().name }}</h2>
