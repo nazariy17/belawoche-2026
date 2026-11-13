@@ -37,8 +37,8 @@ export class TrafficRenderer {
       const angle = plane.heading ?? plane.track;
       item.icon.style.transform = `rotate(${angle ?? 0}deg)`;
       item.icon.style.opacity = plane.stale ? '0.45' : '1';
-      if (item.operator !== plane.operator) {
-        item.operator = plane.operator;
+      if (item.operator !== (plane.operator ?? null)) {
+        item.operator = plane.operator ?? null;
         item.badge.replaceChildren();
         const logo = airlineLogo(plane.operator);
         if (logo) {

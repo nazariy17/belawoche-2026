@@ -78,7 +78,7 @@
       <p>Wähle ein Flugzeug auf der Karte oder in dieser Liste.</p>
       <div class="plane-list">
         @for (plane of visibleAircraft(); track plane.id) {
-          <button (click)="selectAircraft(plane.id)">{{ plane.operator || '?' }} · {{ plane.callsign }}</button>
+          <button (click)="selectAircraft(plane.id)">@if (airlineLogo(plane.operator); as logo) { <img [src]="logo" [alt]="plane.airline || plane.operator || 'Airline'" style="width:46px;height:22px;object-fit:contain;background:white;padding:2px;border-radius:3px;vertical-align:middle" /> } @else { {{ plane.operator || '—' }} } · {{ plane.callsign }}</button>
         }
       </div>
       <div class="api">

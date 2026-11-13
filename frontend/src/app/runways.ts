@@ -23,6 +23,18 @@ export function runwayFeatures(runways: Runway[]): FeatureCollection {
     for (const nm of [2, 4, 6, 8, 10]) {
       data.features.push({ type: 'Feature', properties: { kind: 'distance', ident: `${end.ident} · ${nm} NM` }, geometry: { type: 'Point', coordinates: destination(threshold, end.heading + 180, nm * 1.852) } });
     }
+    // Illustrative lighting, not a surveyed airport lighting installation.
+    for (let metres = 30; metres <= 900; metres += 30) {
+      data.features.push({ type: 'Feature', properties: { kind: 'approach-light' }, geometry: { type: 'Point', coordinates: destination(threshold, end.heading + 180, metres / 1000) } });
+    }
+    const crossbar = destination(threshold, end.heading + 180, 0.3);
+    for (let metres = -25; metres <= 25; metres += 5) {
+      data.features.push({ type: 'Feature', properties: { kind: 'approach-light' }, geometry: { type: 'Point', coordinates: destination(crossbar, end.heading + 90, metres / 1000) } });
+    }
+    for (let metres = -22; metres <= 22; metres += 4) {
+      data.features.push({ type: 'Feature', properties: { kind: 'threshold-light' }, geometry: { type: 'Point', coordinates: destination(threshold, end.heading + 90, metres / 1000) } });
+      data.features.push({ type: 'Feature', properties: { kind: 'end-light' }, geometry: { type: 'Point', coordinates: destination(destination(end.point, end.heading + 180, 0.012), end.heading + 90, metres / 1000) } });
+    }
   }
   return data;
 }

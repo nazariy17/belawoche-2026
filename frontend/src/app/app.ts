@@ -12,9 +12,11 @@ import { LiveTraffic } from './live-traffic';
 import { WeatherCard } from './weather-card';
 import { iconLabels, iconUrl, type AircraftIcon } from './aircraft-icons';
 import { loadRunways, runwayFeatures } from './runways';
+import { airlineLogo } from './airlines';
 
 @Component({ selector: 'app-root', imports: [AircraftCard, WeatherCard], templateUrl: './app.html', styleUrl: './app.scss' })
 export class App implements AfterViewInit, OnDestroy {
+  readonly airlineLogo = airlineLogo;
   readonly iconLabels = iconLabels;
   readonly iconUrl = iconUrl;
   readonly legendIcons: AircraftIcon[] = ['small', 'medium', 'large', 'heavy-twin', 'heavy-four', 'heavy', 'helicopter', 'unknown'];
@@ -170,10 +172,17 @@ export class App implements AfterViewInit, OnDestroy {
     this.selectedId = plane.id; this.lookupResults.set([]); this.lookupStatus.set('Radar zur letzten gemeldeten Position versetzt.');
   }
   reset() { this.following.set(false); this.map?.flyTo({ center: this.center, zoom: 9 }); }
-  airportZoom(zoom: number) {
+  async airportZoom(zoom: number) {
     this.following.set(false);
     const airport = this.airport();
     this.map?.flyTo({ center: [airport.lon, airport.lat], zoom });
+    try {
+      const runways = await loadRunways(airport.icao);
+      if (!runways.length || this.destroyed || this.airport().icao !== airport.icao) return;
+      const points = zoom >= 16 ? runways.flatMap(r => r.ends.map(e => e.point)) : runwayFeatures(runways).features.flatMap(f => f.geometry.type === 'LineString' ? f.geometry.coordinates : []);
+      const lngs = points.map(p => airport.lon + ((p[0] - airport.lon + 540) % 360) - 180), lats = points.map(p => p[1]);
+      this.map?.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], { padding: 55, maxZoom: zoom, duration: 900 });
+    } catch { /* Keep the airport-centred fallback if runway data is unavailable. */ }
   }
   toggleLights() { this.lights.update(value => !value); if (this.map) setLights(this.map, this.lights()); }
   async searchAirports(query: string) {
@@ -208,9 +217,12 @@ export class App implements AfterViewInit, OnDestroy {
         map.addSource('selected-runways', { type: 'geojson', data });
         map.addLayer({ id: 'approach-lines', type: 'line', source: 'selected-runways', minzoom: 8, filter: ['==', ['get', 'kind'], 'approach'], paint: { 'line-color': '#72d2e8', 'line-width': 1.5, 'line-dasharray': [6, 4], 'line-opacity': 0.75 } });
         map.addLayer({ id: 'approach-distances', type: 'symbol', source: 'selected-runways', minzoom: 10, filter: ['==', ['get', 'kind'], 'distance'], layout: { 'text-field': ['get', 'ident'], 'text-font': ['Noto Sans Regular'], 'text-size': 10, 'text-offset': [0, 1] }, paint: { 'text-color': '#9bdded', 'text-halo-color': '#091b26', 'text-halo-width': 2 } });
-        map.addLayer({ id: 'runway-numbers', type: 'symbol', source: 'selected-runways', minzoom: 12, filter: ['==', ['get', 'kind'], 'number'], layout: { 'text-field': ['get', 'ident'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 12, 12, 17, 24], 'text-rotate': ['get', 'heading'], 'text-rotation-alignment': 'map', 'text-allow-overlap': true }, paint: { 'text-color': '#fff6d8', 'text-halo-color': '#18232c', 'text-halo-width': 2 } });
+        map.addLayer({ id: 'approach-light-glow', type: 'circle', source: 'selected-runways', minzoom: 11, filter: ['in', ['get', 'kind'], ['literal', ['approach-light', 'threshold-light', 'end-light']]], paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 1.5, 16, 5], 'circle-color': ['match', ['get', 'kind'], 'threshold-light', '#46ff9c', 'end-light', '#ff504e', '#fff3cd'], 'circle-blur': 0.8, 'circle-opacity': 0.65 } });
+        map.addLayer({ id: 'approach-light-points', type: 'circle', source: 'selected-runways', minzoom: 11, filter: ['in', ['get', 'kind'], ['literal', ['approach-light', 'threshold-light', 'end-light']]], paint: { 'circle-radius': ['interpolate', ['linear'], ['zoom'], 11, 0.7, 16, 2.1], 'circle-color': ['match', ['get', 'kind'], 'threshold-light', '#73ffb6', 'end-light', '#ff625d', '#fff9e9'] } });
+        map.addLayer({ id: 'runway-numbers', type: 'symbol', source: 'selected-runways', minzoom: 10.5, filter: ['==', ['get', 'kind'], 'number'], layout: { 'text-field': ['get', 'ident'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 10.5, 12, 17, 24], 'text-rotate': ['get', 'heading'], 'text-rotation-alignment': 'map', 'text-allow-overlap': true }, paint: { 'text-color': '#fff6d8', 'text-halo-color': '#18232c', 'text-halo-width': 2 } });
       }
       this.setApproaches();
+      setLights(map, this.lights());
       this.runwayStatus.set(runways.length ? 'Gestrichelt: verlängerte Pistenachsen · 2-NM-Abstände · keine veröffentlichten Anflugverfahren.' : 'Keine vollständigen Pistendaten für diesen Flughafen vorhanden.');
     } catch { if (airport.icao === this.airport().icao) this.runwayStatus.set('Pistendaten konnten nicht geladen werden.'); }
   }
