@@ -1,7 +1,7 @@
 """Same-origin API. Provider integrations belong here, never in the browser."""
 
 from typing import Literal
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from providers import traffic, cached_json, normalize, weather
 
 app = FastAPI(
@@ -32,7 +32,9 @@ def capabilities() -> dict:
 
 
 @app.get('/api/traffic')
-async def get_traffic(lat: float = Query(ge=-85, le=85), lon: float = Query(ge=-180, le=180), radius: Literal[10, 25, 50] = 25):
+async def get_traffic(lat: float = Query(ge=-85, le=85), lon: float = Query(ge=-180, le=180), radius: int = Query(default=25, ge=10, le=50)):
+    if radius not in (10, 25, 50):
+        raise HTTPException(422, 'Radius must be 10, 25 or 50 km')
     return await traffic(lat, lon, radius)
 
 

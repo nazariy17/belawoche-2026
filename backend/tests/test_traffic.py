@@ -14,6 +14,14 @@ def test_coordinate_validation_prevents_upstream_requests():
     client = TestClient(app)
     assert client.get('/api/traffic?lat=99&lon=8&radius=25').status_code == 422
     assert client.get('/api/traffic?lat=47&lon=8&radius=999').status_code == 422
+    assert client.get('/api/traffic?lat=47&lon=8&radius=20').status_code == 422
+
+
+def test_browser_query_string_radius_is_accepted():
+    with patch('main.traffic', new=AsyncMock(return_value={'aircraft': [], 'source': 'adsb.lol'})) as traffic:
+        response = TestClient(app).get('/api/traffic?lat=47.458&lon=8.555&radius=25')
+        assert response.status_code == 200
+        traffic.assert_awaited_once_with(47.458, 8.555, 25)
 
 
 def test_units_observation_age_and_missing_values():
