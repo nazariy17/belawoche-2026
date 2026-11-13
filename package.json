@@ -4,7 +4,7 @@
   "scripts": {
     "setup:frontend": "npm --prefix frontend ci",
     "dev": "npm --prefix frontend start",
-    "dev:backend": "backend/.venv/Scripts/python.exe -m uvicorn main:app --app-dir backend --reload --port 8000",
+    "dev:backend": "node scripts/dev-backend.mjs",
     "build": "npm --prefix frontend run build"
   },
   "engines": { "node": ">=24.15.0 <25" }
