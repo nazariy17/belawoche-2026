@@ -1,0 +1,6 @@
+﻿@import 'maplibre-gl/dist/maplibre-gl.css';
+* { box-sizing: border-box; }
+body { margin: 0; background: #0a1922; color: #eaf6f4; font-family: 'Segoe UI', Arial, sans-serif; }
+button { font: inherit; }
+.aircraft { color: #d8fff4; background: #163e3b; border: 1px solid #6fe1c0; border-radius: 8px; padding: 10px; cursor: pointer; font-size: 12px; }
+.aircraft[hidden] { display: none; }

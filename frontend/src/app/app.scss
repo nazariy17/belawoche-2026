@@ -1,0 +1,28 @@
+﻿:host { display: block; }
+main { max-width: 1440px; margin: auto; padding: 0 5vw; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 28px 0; border-bottom: 1px solid #243a45; }
+.brand { display: flex; gap: 12px; align-items: center; color: #eaf6f4; text-decoration: none; font-size: 22px; font-weight: 700; }
+small { display: block; font-size: 10px; letter-spacing: 3px; margin-top: 5px; color: #87a6b3; }
+.badge { color: #81ebcb; background: #143e38; border: 1px solid #296256; border-radius: 30px; padding: 9px 14px; font-size: 12px; }
+.intro { padding: 45px 0 28px; }
+.eyebrow { color: #74dfc3; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+h1 { font-size: clamp(32px, 5vw, 56px); letter-spacing: -2px; margin: 12px 0; }
+p { color: #9bb4bf; line-height: 1.7; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 290px; border: 1px solid #28404d; border-radius: 18px; overflow: hidden; }
+.map-panel { min-width: 0; background: #091b26; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px; border-bottom: 1px solid #28404d; }
+.radii { display: flex; gap: 4px; }
+button { border: 1px solid #34505e; border-radius: 7px; background: #142c39; color: #ddf0ed; padding: 10px 12px; cursor: pointer; }
+button:hover, button[aria-pressed='true'] { background: #28574f; border-color: #71dfc2; }
+button:focus-visible { outline: 2px solid #71dfc2; outline-offset: 3px; }
+#radar-map { height: 430px; }
+.caption { padding: 0 16px; font-size: 11px; }
+aside { padding: 28px; background: #112632; border-left: 1px solid #28404d; }
+h2 { font-size: 32px; margin: 12px 0; }
+h3 { font-size: 16px; }
+aside p { font-size: 14px; }
+.divider { height: 1px; background: #28404d; margin: 28px 0; }
+.api { display: grid; gap: 12px; margin-top: 28px; font-size: 12px; }
+.api span { color: #9bb4bf; }
+footer { display: flex; justify-content: space-between; gap: 1rem; padding: 24px 0; color: #809aa8; font-size: 12px; }
+@media (max-width: 800px) { .workspace { grid-template-columns: 1fr; } aside { border-left: 0; border-top: 1px solid #28404d; } header, footer { flex-wrap: wrap; } #radar-map { height: 360px; } }
